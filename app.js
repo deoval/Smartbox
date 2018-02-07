@@ -11,7 +11,7 @@ var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
-var bd = require('./bd.js');
+//var bd = require('./bd.js');
 
 var client_id = '1ff894dcd5b64c98b024d6125224bdc6'; // Your client id
 var client_secret = 'bffb8961a25b4353a66aa537f9d3220a'; // Your secret
@@ -100,9 +100,9 @@ app.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           
-          bd.insert([[body.id, access_token, refresh_token]], function(res) {
+          /*bd.insert([[body.id, access_token, refresh_token]], function(res) {
             console.log(res);
-          });        
+          });*/        
         });
 
 
@@ -149,7 +149,7 @@ app.get('/refresh_token', function(req, res) {
 
 app.get('/get_music', function(req, res){
 
-  bd.select(function(users) {
+  /*bd.select(function(users) {
     var options = {
       url: 'https://api.spotify.com/v1/me/tracks',
       headers: { 'Authorization': 'Bearer ' + users[0].access_token },
@@ -161,7 +161,7 @@ app.get('/get_music', function(req, res){
       console.log(body);           
     });
 
-  });
+  });*/
   
 });
 
