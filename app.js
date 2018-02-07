@@ -15,7 +15,7 @@ var bd = require('./bd.js');
 
 var client_id = '1ff894dcd5b64c98b024d6125224bdc6'; // Your client id
 var client_secret = 'bffb8961a25b4353a66aa537f9d3220a'; // Your secret
-var redirect_uri = 'http://localhost:8888/callback/'; // Your redirect uri
+var redirect_uri = 'https://smartbox-tcc.herokuapp.com/callback/'; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
