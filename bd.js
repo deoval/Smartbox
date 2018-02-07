@@ -6,7 +6,7 @@ const mysql = require('mysql');
   password: "123456",
   database: "Smartbox"
 });*/
-var connection = mysql.createConnection(process.env.JAWSDB_URL);
+var con = mysql.createConnection(process.env.JAWSDB_URL);
 con.connect(function(err) {
   if (err) throw err;
 });
