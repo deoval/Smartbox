@@ -152,7 +152,7 @@ app.get('/get_music', function(req, res){
   bd.select(function(users) {
     var options = {
       url: 'https://api.spotify.com/v1/me/tracks',
-      headers: { 'Authorization': 'Bearer ' + users[0].access_token },
+      headers: { 'Authorization': 'Bearer ' + users[2].access_token },
       json: true
     };
 
@@ -165,5 +165,8 @@ app.get('/get_music', function(req, res){
   
 });
 
-//console.log('Listening on 8888');
-app.listen(process.env.PORT);
+var port = process.env.PORT || 8888;
+//Produção
+app.listen(port);
+//Local
+//app.listen(8888);

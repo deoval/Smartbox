@@ -6,7 +6,10 @@ const mysql = require('mysql');
   password: "123456",
   database: "Smartbox"
 });*/
-var con = mysql.createConnection(process.env.JAWSDB_URL);
+//var con = mysql.createConnection(process.env.JAWSDB_URL);
+var con_string = process.env.JAWSDB_URL || 'mysql://fktgkw51dnzlqf0f:cg72p9i6felbcg2f@l7cup2om0gngra77.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/tfb38v7epns1iyt1';
+var con = mysql.createConnection(con_string);
+
 con.connect(function(err) {
   if (err) throw err;
 });
