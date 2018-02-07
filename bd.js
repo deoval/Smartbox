@@ -1,11 +1,12 @@
 const mysql = require('mysql');
 
-var con = mysql.createConnection({
+/*var con = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "123456",
   database: "Smartbox"
-});
+});*/
+var connection = mysql.createConnection(process.env.JAWSDB_URL);
 con.connect(function(err) {
   if (err) throw err;
 });
