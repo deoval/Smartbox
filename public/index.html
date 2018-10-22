@@ -25,7 +25,7 @@
 
       <div id="descricao">
         <div class="content">
-          <h1 >TCC - Smartbox</h1>
+          <h1 >Smartbox - TCC UFRJ</h1>
           
           <p>Olá, somos alunos do curso de Ciência da Computação e felizmente estamos concluindo esse curso maravilhoso, para tanto precisaremos terminar o Trabalho de Conclusão de Curso. Nosso projeto consiste em desenvolver um sistema com o objetivo de reproduzir músicas em um ambiente compartilhado e fugir das tradicionais "músicas de elevador". Para isso o sistema deverá ser capaz de analisar os indivíduos que compõem esse grupo e reproduzir músicas que os agradem, analisando sempre os gostos de cada indivíduo e tentando traçar a maior intercessão possível dentre as características presentes. Entretanto para isso necessitamos de dados reais para que possamos desenvolver e testar o sistema, e é nesse parte você poderá nos ajudar!</p>
           
@@ -106,9 +106,11 @@
       <div id="loggedin">
         <div id="user-profile">
         </div>
+        <!-- 
         <div id="oauth">
         </div>
         <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
+        -->
 
         <h2>Lista de gêneros mais escutados e suas pontuações</h2>
         <div style="text-align: center">
@@ -120,25 +122,26 @@
     </div>
 
     <script id="user-profile-template" type="text/x-handlebars-template">
-      <h1>Logged in as {{display_name}}</h1>
+      <button onclick="location.href = '/'" style="float: right;">Sair</button>
+      <h1>Logado como {{display_name}}</h1>
       <div class="media">
         <div class="pull-left">
           <img class="media-object" width="150" src="{{images.0.url}}" />
         </div>
         <div class="media-body">
           <dl class="dl-horizontal">
-            <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
-            <dt>Id</dt><dd>{{id}}</dd>
+            <dt>Nome</dt><dd class="clearfix">{{display_name}}</dd>
+            <dt>ID</dt><dd>{{id}}</dd>
             <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
-            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
-            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
-            <dt>Country</dt><dd>{{country}}</dd>
+            <dt>Link Spotify</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
+            <!-- <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd> -->
+            <!-- <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd> -->
+            <dt>País</dt><dd>{{country}}</dd>
           </dl>
         </div>
       </div>
     </script>
-
+<!-- 
     <script id="oauth-template" type="text/x-handlebars-template">
       <h2>oAuth info</h2>
       <dl class="dl-horizontal">
@@ -146,7 +149,7 @@
         <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}</dd>
       </dl>
     </script>
-
+ -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
@@ -175,9 +178,9 @@
             userProfileTemplate = Handlebars.compile(userProfileSource),
             userProfilePlaceholder = document.getElementById('user-profile');
 
-        var oauthSource = document.getElementById('oauth-template').innerHTML,
-            oauthTemplate = Handlebars.compile(oauthSource),
-            oauthPlaceholder = document.getElementById('oauth');
+        // var oauthSource = document.getElementById('oauth-template').innerHTML,
+        //     oauthTemplate = Handlebars.compile(oauthSource),
+        //     oauthPlaceholder = document.getElementById('oauth');
 
         var params = getHashParams();
 
@@ -189,11 +192,11 @@
           alert('There was an error during the authentication');
         } else {
           if (access_token) {
-            // render oauth info
-            oauthPlaceholder.innerHTML = oauthTemplate({
-              access_token: access_token,
-              refresh_token: refresh_token
-            });
+            // // render oauth info
+            // oauthPlaceholder.innerHTML = oauthTemplate({
+            //   access_token: access_token,
+            //   refresh_token: refresh_token
+            // });
 
             $.ajax({
                 url: 'https://api.spotify.com/v1/me',
@@ -306,20 +309,20 @@
               $('#loggedin').hide();
           }
 
-          document.getElementById('obtain-new-token').addEventListener('click', function() {
-            $.ajax({
-              url: '/refresh_token',
-              data: {
-                'refresh_token': refresh_token
-              }
-            }).done(function(data) {
-              access_token = data.access_token;
-              oauthPlaceholder.innerHTML = oauthTemplate({
-                access_token: access_token,
-                refresh_token: refresh_token
-              });
-            });
-          }, false);
+          // document.getElementById('obtain-new-token').addEventListener('click', function() {
+          //   $.ajax({
+          //     url: '/refresh_token',
+          //     data: {
+          //       'refresh_token': refresh_token
+          //     }
+          //   }).done(function(data) {
+          //     access_token = data.access_token;
+          //     oauthPlaceholder.innerHTML = oauthTemplate({
+          //       access_token: access_token,
+          //       refresh_token: refresh_token
+          //     });
+          //   });
+          // }, false);
         }
       })();
     </script>
