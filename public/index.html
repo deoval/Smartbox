@@ -71,9 +71,13 @@
           <b>Importante:</b> As permissões só permitem ler os dados, nenhuma informação poderá ser alterada ou removida. Segue o
            <a href="https://developer.spotify.com/documentation/general/guides/scopes/">link</a> do Spotify para mais informações.
           </p>
-          
+
+          <br>
+    
+          <input type="checkbox" name="permissaoAdicional" value="permiteAcesso"> Eu gostaria de fazer parte dos testes do projeto, permitindo assim acesso ao meu e-mail e data de nascimento cadastrados na minha conta do Spotify.<br>
+    
           <div id="acoes">
-            <button onclick="confirm('Necessário aceitar os termos: Eu gostaria de fazer parte dos testes do projeto, permitindo assim acesso ao meu e-mail e data de nascimento cadastrados na minha conta do Spotify.') ? location.href = '/login' : null">Join on <span id="spotify-logo"></span></button>
+            <button onclick="location.href = '/login'">Join on <span id="spotify-logo"></span></button>
           </div>
         </div>
       </div>
