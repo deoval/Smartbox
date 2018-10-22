@@ -30,7 +30,10 @@
         <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
 
         <h2>Lista de gêneros mais escutados e suas pontuações</h2>
-        <dl id="genresNotesList" class="dl-horizontal">
+        <div style="text-align: center">
+          <canvas id="myChart" width="400" height="400" style="display: inline-block;"></canvas>
+        </div>
+        <dl id="genresNotesList" class="dl-horizontal" style="column-count: 4;">
         </dl>
       </div>
     </div>
@@ -65,6 +68,7 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
     <script>
       (function() {
 
@@ -130,6 +134,8 @@
                 'Authorization': 'Bearer ' + access_token
               },
               success: function(response) {
+                console.log(response)
+                
                 // Separando uma lista de artistas escutados
                 let artistsIds = []
                 response.items.forEach((item) => {
@@ -179,10 +185,37 @@
                   genresNotes = genresNotes.sort()
                   console.log(genresNotes)
 
+                  // Monta a lista de gêneros com os pontos
                   genresNotes.forEach((note, genre) => {
                     document.querySelector("#genresNotesList").innerHTML += `
-<dt>${genre}</dt><dd class="text-overflow">${note}</dd>`
+<dt>${genre}</dt><dd class="text-overflow" style="width:initial">${note}</dd>`
                   })
+
+                  // Monta o gráfico de gêneros com os pontos
+                  var dynamicColors = function() {
+                    let colors = ["#99FFCC","#CCCC99","#CCCCCC","#CCCCFF","#CCFF99","#CCFFCC","#CCFFFF","#FFCC99","#FFCCCC","#FFCCFF","#FFFF99","#FFFFCC"]
+                    return colors[parseInt(Math.random()*colors.length)]
+                  };
+                  var ctx = document.getElementById("myChart").getContext('2d');
+                  var myChart = new Chart(ctx, {
+                      type: 'pie',
+                      data: {
+                          labels: [...genresNotes.keys()],
+                          datasets: [{
+                              label: 'Gêneros',
+                              data: [...genresNotes.values()],
+                              backgroundColor: [...genresNotes.entries()].map(()=>{return dynamicColors()}),
+                              borderWidth: 1
+                          }]
+                      },
+                      options: {
+                        responsive: false, 
+                        maintainAspectRatio: true, 
+                        legend: {
+                            display: false
+                        },
+                      }
+                  });
                 })
               }
             });
