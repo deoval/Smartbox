@@ -28,6 +28,10 @@
         <div id="oauth">
         </div>
         <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
+
+        <h2>Lista de gêneros mais escutados e suas pontuações</h2>
+        <dl id="genresNotesList" class="dl-horizontal">
+        </dl>
       </div>
     </div>
 
@@ -63,6 +67,10 @@
     <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script>
       (function() {
+
+        Map.prototype.sort = function() {
+          return new Map([...this.entries()].sort((a, b) => { return b[1] - a[1] }))
+        }
 
         /**
          * Obtains parameters from the hash of the URL
@@ -113,6 +121,70 @@
                   $('#login').hide();
                   $('#loggedin').show();
                 }
+            });
+
+            // Pega as últimas 50 músicas para mapear os gêneros mais escutados
+            $.ajax({
+              url: 'https://api.spotify.com/v1/me/player/recently-played?limit=50',
+              headers: {
+                'Authorization': 'Bearer ' + access_token
+              },
+              success: function(response) {
+                // Separando uma lista de artistas escutados
+                let artistsIds = []
+                response.items.forEach((item) => {
+                  item.track.artists.forEach((artist) => {
+                    artistsIds.push(artist.id)
+                  })
+                })
+                console.log(artistsIds)
+
+                // Separando os artistas em lotes de 50 para fazer as requisições do spotify
+                var artistsIdsChunks = [], size = 50;
+                while (artistsIds.length > 0)
+                    artistsIdsChunks.push(artistsIds.splice(0, size));
+                console.log(artistsIdsChunks);
+
+                // Faz as requisições de cada lote de artistas
+                let artistsPromises = []
+                artistsIdsChunks.forEach((artistsIdsChunk) => {
+                  artistsPromises.push(
+                    $.ajax({
+                      url: 'https://api.spotify.com/v1/artists?ids=' + artistsIdsChunk.join(","),
+                      headers: {
+                        'Authorization': 'Bearer ' + access_token
+                      }
+                    })
+                  )
+                })
+
+                // Processa o response de todos as requisições dos lotes, quando terminar
+                $.when(...artistsPromises).then(function() {
+                  console.log(arguments)
+
+                  let genresNotes = new Map()
+
+                  for (var i = 0; i < arguments.length; i++) {
+                    arguments[i][0].artists.forEach((artist) => {
+                      artist.genres.forEach((genre) => {
+                        let genreNote = genresNotes.get(genre)
+                        if(!genreNote) {
+                          genreNote = 0
+                        }
+                        genresNotes.set(genre, genreNote + 1)
+                      })
+                    })
+                  }
+
+                  genresNotes = genresNotes.sort()
+                  console.log(genresNotes)
+
+                  genresNotes.forEach((note, genre) => {
+                    document.querySelector("#genresNotesList").innerHTML += `
+<dt>${genre}</dt><dd class="text-overflow">${note}</dd>`
+                  })
+                })
+              }
             });
           } else {
               // render initial screen
