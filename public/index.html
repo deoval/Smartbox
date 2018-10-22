@@ -1,8 +1,9 @@
 <!doctype html>
 <html>
   <head>
-    <title>Example of the Authorization Code flow with Spotify</title>
+    <title>Smartbox - TCC UFRJ</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="main.css">
     <style type="text/css">
       #login, #loggedin {
         display: none;
@@ -17,11 +18,91 @@
   </head>
 
   <body>
-    <div class="container">
-      <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
-        <a href="/login" class="btn btn-primary">Log in with Spotify</a>
+    <div id="login">
+      <div id="caixa-logo-minerva" class="content">
+        <img src="https://ufrj.br/img/minerva/002minerva_color_hor.png" alt="">
       </div>
+
+      <div id="descricao">
+        <div class="content">
+          <h1 >TCC - Smartbox</h1>
+          
+          <p>Olá, somos alunos do curso de Ciência da Computação e felizmente estamos concluindo esse curso maravilhoso, para tanto precisaremos terminar o Trabalho de Conclusão de Curso. Nosso projeto consiste em desenvolver um sistema com o objetivo de reproduzir músicas em um ambiente compartilhado e fugir das tradicionais "músicas de elevador". Para isso o sistema deverá ser capaz de analisar os indivíduos que compõem esse grupo e reproduzir músicas que os agradem, analisando sempre os gostos de cada indivíduo e tentando traçar a maior intercessão possível dentre as características presentes. Entretanto para isso necessitamos de dados reais para que possamos desenvolver e testar o sistema, e é nesse parte você poderá nos ajudar!</p>
+          
+          <br>
+          
+          <p>Utilizaremos a base de dados do Spotify, mas para isso precisamos da permissão dos usuários. Ou seja:</p>
+          
+          <br>
+          
+          <div id="caixa-we-need-you">
+            <img src="assets/we-need-you.jpg" alt="">
+          </div>
+        
+          <br>
+
+          <p>Não se preocupe que os dados serão coletados anonimamente! A menos que você queira participar mais intensamente do desenvolvimento do sistema, nos ajudando com os testes do sistema, para isso será necessário somente o seu e-mail.<p>
+
+          <br>
+
+          <p>Para fins de transparência listamos abaixo as permissões que serão utilizadas.<p>
+
+          <div id="lista-permissoes">
+            <h2>Permissões necessárias</h2>
+            
+            <ul>
+              <li><i>user-top-read</i> :  Acessar seus artistas e músicas mais escutados.</li>
+              <li><i>user-read-recent-played</i> : Acessar o que você escutou recentemente.</li>
+              <li><i>user-library-read</i> : Acessar suas faixas, álbuns e programas salvos.</li>
+              <li><i>playlist-read-private</i> : Acessar suas playlists particulares.</li> 
+              <li><i>playlist-read-collaborative</i> :  Acessar suas playlists colaborativas.</li>
+            </ul>
+            
+            <h2>Permissões opcionais</h2>
+            <ul>
+              <li><i>user-read-email</i> : Obter seu endereço de e-mail.</li>
+              <li><i>user-read-birthdate</i> : Receber sua data de nascimento.</li> 
+            </ul>
+          </div>
+          
+          <br>
+          
+          <p>
+          <b>Importante:</b> As permissões só permitem ler os dados, nenhuma informação poderá ser alterada ou removida. Segue o
+           <a href="https://developer.spotify.com/documentation/general/guides/scopes/">link</a> do Spotify para mais informações.
+          </p>
+          
+          <div id="acoes">
+            <button onclick="confirm('Necessário aceitar os termos: Eu gostaria de fazer parte dos testes do projeto, permitindo assim acesso ao meu e-mail e data de nascimento cadastrados na minha conta do Spotify.') ? location.href = '/login' : null">Join on <span id="spotify-logo"></span></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="nossa-equipe" class="content">
+        <div class="membro">
+          <div class="caixa-foto-membro">
+            <img src="assets/deoval.jpg" alt="">
+          </div>
+          <div class="nome-membro">Deoval Junior</div>
+        </div>
+        
+        <div class="membro">
+          <div class="caixa-foto-membro">
+            <img src="assets/josue.jpg" alt="">
+          </div>
+          <div class="nome-membro">Josué Pereira</div>
+        </div>
+        
+        <div class="membro">
+          <div class="caixa-foto-membro">
+            <img src="assets/nathalia.jpg" alt="">
+          </div>
+          <div class="nome-membro">Nathália Pedral</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
       <div id="loggedin">
         <div id="user-profile">
         </div>
@@ -135,7 +216,7 @@
               },
               success: function(response) {
                 console.log(response)
-                
+
                 // Separando uma lista de artistas escutados
                 let artistsIds = []
                 response.items.forEach((item) => {
