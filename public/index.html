@@ -18,6 +18,10 @@
   </head>
 
   <body>
+    <div id="loading">
+      <img src="assets/Rolling-1s-100px.gif" style="position:fixed;margin:auto;top:0;bottom:0;left:0;right:0;">
+    </div>
+
     <div id="login">
       <div id="caixa-logo-minerva" class="content">
         <img src="https://ufrj.br/img/minerva/002minerva_color_hor.png" alt="">
@@ -210,6 +214,7 @@
                 success: function(response) {
                   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
 
+                  $('#loading').hide();
                   $('#login').hide();
                   $('#loggedin').show();
                 }
@@ -309,6 +314,7 @@
             });
           } else {
               // render initial screen
+              $('#loading').hide();
               $('#login').show();
               $('#loggedin').hide();
           }
