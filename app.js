@@ -165,7 +165,7 @@ app.get('/get_music', function(req, res){
   
 });
 
-var port = process.env.PORT || 8888;
+var port = process.env.PORT || 8000;
 //Produção
 app.listen(port);
 //Local
