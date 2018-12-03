@@ -18,7 +18,6 @@ var redirect_uri = 'https://smartbox-ufrj.herokuapp.com/callback'; // Your redir
 
 var firebaseAdmin = require('firebase-admin');
 var firebaseServiceAccount = process.env.firebaseJsonSDK ? JSON.parse(Buffer.from(process.env.firebaseJsonSDK, 'base64')) : require('./smartbox-ufrj-development-firebase-adminsdk-4b3zs-250740e362.json');
-console.log(firebaseServiceAccount)
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(firebaseServiceAccount),
   databaseURL: "https://smartbox-ufrj.firebaseio.com"
@@ -184,7 +183,7 @@ app.get('/get_listened', function(req, res){
   axios.get('https://api.spotify.com/v1/me/player/recently-played?limit=50', {
     headers: { 'Authorization': 'Bearer ' + req.query.access_token }
   }).then(function(response) {
-    console.log(response.data)
+    // console.log(response.data)
 
     // Separando uma lista de artistas escutados
     let artistsIds = []
@@ -193,13 +192,13 @@ app.get('/get_listened', function(req, res){
         artistsIds.push(artist.id)
       })
     })
-    console.log(artistsIds)
+    // console.log(artistsIds)
 
     // Separando os artistas em lotes de 50 para fazer as requisições do spotify
     var artistsIdsChunks = [], size = 50;
     while (artistsIds.length > 0)
         artistsIdsChunks.push(artistsIds.splice(0, size));
-    console.log(artistsIdsChunks);
+    // console.log(artistsIdsChunks);
 
     // Faz as requisições de cada lote de artistas
     let artistsPromises = []
@@ -213,7 +212,7 @@ app.get('/get_listened', function(req, res){
 
     // Processa o body de todos as requisições dos lotes, quando terminar
     axios.all(artistsPromises).then(function(results) {
-      console.log(results)
+      // console.log(results)
 
       let genresNotes = new Map()
 
@@ -230,7 +229,7 @@ app.get('/get_listened', function(req, res){
       })
 
       genresNotes = genresNotes.sort()
-      console.log(genresNotes.obj())
+      // console.log(genresNotes.obj())
       res.json(genresNotes.obj())
     })
   });
