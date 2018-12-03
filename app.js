@@ -124,7 +124,7 @@ app.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           // Salvando usuário no banco de dados
-          db.collection('usuarios').doc(body.id);
+          db.collection('usuarios').doc(body.id)
             .set({
               email: body.email,
               id_spotify: body.id,
@@ -176,13 +176,11 @@ app.get('/refresh_token', function(req, res) {
 });
 
 app.get('/get_listened', function(req, res){
-  // Pega as últimas 50 músicas para mapear os gêneros mais escutados
+  // Pega as últimas 50 músicas escutadas
   axios.get('https://api.spotify.com/v1/me/player/recently-played?limit=50', {
     headers: { 'Authorization': 'Bearer ' + req.query.access_token }
   }).then(function(response) {
-    // console.log(response.data)
-
-    // Separando uma lista de artistas escutados
+    // Separando uma lista de ids dos artistas escutados
     let artistsIds = []
     response.data.items.forEach((item) => {
       let musica = item.track
@@ -207,53 +205,82 @@ app.get('/get_listened', function(req, res){
         artistsIds.push(artist.id)
       })
     })
-    // console.log(artistsIds)
 
-    // Separando os artistas em lotes de 50 para fazer as requisições do spotify
-    var artistsIdsChunks = [], size = 50;
-    while (artistsIds.length > 0)
-        artistsIdsChunks.push(artistsIds.splice(0, size));
-    // console.log(artistsIdsChunks);
-
-    // Faz as requisições de cada lote de artistas
-    let artistsPromises = []
-    artistsIdsChunks.forEach((artistsIdsChunk) => {
-      artistsPromises.push(
-        axios.get('https://api.spotify.com/v1/artists?ids=' + artistsIdsChunk.join(","), {
-          headers: { 'Authorization': 'Bearer ' + req.query.access_token }
+    // Pega todos os artistas salvos no banco
+    db.collection('artistas').get()
+      .then((artistaDocs)=>{
+        let allSavedArtists = []
+        artistaDocs.forEach((artistaDoc)=>{
+          allSavedArtists.push(artistaDoc.data())
         })
-      )
-    })
 
-    // Processa o body de todos as requisições dos lotes, quando terminar
-    axios.all(artistsPromises).then(function(results) {
-      // console.log(results)
-
-      let genresNotes = new Map()
-
-      results.forEach((response) => {
-        response.data.artists.forEach((artist) => {
-          artist.genres.forEach((genre) => {
-            let genreNote = genresNotes.get(genre)
-            if(!genreNote) {
-              genreNote = 0
+        // Adiciona o artista já salvo na lista de escutados e remove da lista de ids
+        let artistsListened = []
+        artistsIds = artistsIds.filter((artistId) => {
+          for(let savedArtist of allSavedArtists) {
+            if(artistId == savedArtist.id_spotify) {
+              artistsListened.push(savedArtist)
+              return false
             }
-            genresNotes.set(genre, genreNote + 1)
+          }
+          return true
+        })
+
+        // Separando os ids dos artistas em lotes de 50 para fazer as requisições do spotify
+        var artistsIdsChunks = [], size = 50;
+        while (artistsIds.length > 0)
+            artistsIdsChunks.push(artistsIds.splice(0, size));
+
+        // Faz as requisições de cada lote de ids de artistas
+        let artistsPromises = []
+        artistsIdsChunks.forEach((artistsIdsChunk) => {
+          artistsPromises.push(
+            axios.get('https://api.spotify.com/v1/artists?ids=' + artistsIdsChunk.join(","), {
+              headers: { 'Authorization': 'Bearer ' + req.query.access_token }
+            })
+          )
+        })
+
+        // Processa todas requisições dos lotes, quando terminar
+        axios.all(artistsPromises).then(function(results) {
+          // Salva cada artista no banco e adiciona na lista de escutados
+          results.forEach((response) => {
+            response.data.artists.forEach((artist) => {
+              let artistModel = {
+                id_spotify: artist.id,
+                nome: artist.name,
+                generos: artist.genres,
+                popularidade: artist.popularity,
+                qtd_seguidores: artist.followers ? artist.followers.total : null,
+                url_spotify: artist.href,
+                url_imagem: artist.images[0] ? artist.images[0].url : null,
+              }
+              artistsListened.push(artistModel)
+              db.collection('artistas').doc(artist.id).set(artistModel);
+            })
           })
+
+          // Prepara a lista de generos mais escutados
+          let genresNotes = new Map()
+          artistsListened.forEach((artist) => {
+            artist.generos.forEach((genre) => {
+              let genreNote = genresNotes.get(genre)
+              if(!genreNote) {
+                genreNote = 0
+              }
+              genresNotes.set(genre, genreNote + 1)
+            })
+          })
+
+          // Ordena os generos mais escutados por nota, e envia
+          genresNotes = genresNotes.sort()
+          res.json(genresNotes.obj())
         })
       })
-
-      genresNotes = genresNotes.sort()
-      // console.log(genresNotes.obj())
-      res.json(genresNotes.obj())
-    })
   });
 });
 
 
 var port = process.env.PORT || 8000;
 console.log("Running on port: " + port)
-//Produção
 app.listen(port);
-//Local
-//app.listen(8888);
