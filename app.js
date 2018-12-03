@@ -185,7 +185,25 @@ app.get('/get_listened', function(req, res){
     // Separando uma lista de artistas escutados
     let artistsIds = []
     response.data.items.forEach((item) => {
-      item.track.artists.forEach((artist) => {
+      let musica = item.track
+
+      // Salva a musica no banco de dados
+      db.collection('musicas').doc(musica.id)
+        .set({
+          id_spotify: musica.id,
+          titulo: musica.name,
+          artistas: musica.artists.map(artist => db.collection("artistas").doc(artist.id)),
+          album: db.collection("albuns").doc(musica.album.id),
+          duracao_ms: musica.duration_ms,
+          explicito: musica.explicit,
+          ids_externos: musica.external_ids,
+          numero_disco: musica.disc_number,
+          numero_faixa: musica.track_number,
+          popularidade: musica.popularity,
+          url_spotify: musica.href,
+        });
+
+      musica.artists.forEach((artist) => {
         artistsIds.push(artist.id)
       })
     })
