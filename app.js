@@ -123,17 +123,14 @@ app.get('/callback', function(req, res) {
 
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
-          console.log(body)
-
-          // TODO: Montar o usuário no banco (validar se já existe antes de sobrescrever)
-
-          // var docRef = db.collection('users').doc('alovelace');
-
-          // var setAda = docRef.set({
-          //   first: 'Ada',
-          //   last: 'Lovelace',
-          //   born: 1815
-          // });     
+          // Salvando usuário no banco de dados
+          db.collection('usuarios').doc(body.id);
+            .set({
+              email: body.email,
+              id_spotify: body.id,
+              nome: body.display_name,
+              url_imagem: body.images[0] ? body.images[0].url : null
+            }, {merge: true});
         });
 
 
