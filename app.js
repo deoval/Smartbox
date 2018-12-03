@@ -12,11 +12,18 @@ var querystring = require('querystring');
 var axios = require('axios');
 var cookieParser = require('cookie-parser');
 
-var bd = require('./bd.js');
-
 var client_id = '1ff894dcd5b64c98b024d6125224bdc6'; // Your client id
 var client_secret = 'bffb8961a25b4353a66aa537f9d3220a'; // Your secret
 var redirect_uri = 'https://smartbox-ufrj.herokuapp.com/callback'; // Your redirect uri
+
+var firebaseAdmin = require('firebase-admin');
+var firebaseServiceAccount = process.env.firebaseJsonSDK ? JSON.parse(Buffer.from(process.env.firebaseJsonSDK, 'base64')) : require('./smartbox-ufrj-development-firebase-adminsdk-4b3zs-250740e362.json');
+console.log(firebaseServiceAccount)
+firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.cert(firebaseServiceAccount),
+  databaseURL: "https://smartbox-ufrj.firebaseio.com"
+});
+var db = firebaseAdmin.firestore();
 
 /**
  * Generates a random string containing numbers and letters
@@ -117,10 +124,17 @@ app.get('/callback', function(req, res) {
 
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
-          
-          bd.insert([[body.id, access_token, refresh_token]], function(res) {
-            console.log(res);
-          });        
+          console.log(body)
+
+          // TODO: Montar o usuário no banco (validar se já existe antes de sobrescrever)
+
+          // var docRef = db.collection('users').doc('alovelace');
+
+          // var setAda = docRef.set({
+          //   first: 'Ada',
+          //   last: 'Lovelace',
+          //   born: 1815
+          // });     
         });
 
 
@@ -163,24 +177,6 @@ app.get('/refresh_token', function(req, res) {
       });
     }
   });
-});
-
-app.get('/get_music', function(req, res){
-
-  bd.select(function(users) {
-    var options = {
-      url: 'https://api.spotify.com/v1/me/tracks',
-      headers: { 'Authorization': 'Bearer ' + users[2].access_token },
-      json: true
-    };
-
-    // use the access token to access the Spotify Web API
-    request.get(options, function(error, response, body) {
-      console.log(body);           
-    });
-
-  });
-  
 });
 
 app.get('/get_listened', function(req, res){
@@ -242,6 +238,7 @@ app.get('/get_listened', function(req, res){
 
 
 var port = process.env.PORT || 8000;
+console.log("Running on port: " + port)
 //Produção
 app.listen(port);
 //Local
