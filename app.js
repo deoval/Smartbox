@@ -9,6 +9,7 @@
 var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
+var axios = require('axios');
 var cookieParser = require('cookie-parser');
 
 var bd = require('./bd.js');
@@ -38,6 +39,23 @@ var app = express();
 
 app.use(express.static(__dirname + '/public'))
    .use(cookieParser());
+
+
+// Helpers
+Map.prototype.sort = function() {
+  return new Map([...this.entries()].sort((a, b) => { return b[1] - a[1] }))
+}
+
+Map.prototype.obj = function() {
+  let obj = {}
+  for(let [key,val] of this.entries()){
+      obj[key]= val;
+  }
+  return obj
+}
+
+
+// Routes
 
 app.get('/login', function(req, res) {
 
@@ -164,6 +182,64 @@ app.get('/get_music', function(req, res){
   });
   
 });
+
+app.get('/get_listened', function(req, res){
+  // Pega as últimas 50 músicas para mapear os gêneros mais escutados
+  axios.get('https://api.spotify.com/v1/me/player/recently-played?limit=50', {
+    headers: { 'Authorization': 'Bearer ' + req.query.access_token }
+  }).then(function(response) {
+    console.log(response.data)
+
+    // Separando uma lista de artistas escutados
+    let artistsIds = []
+    response.data.items.forEach((item) => {
+      item.track.artists.forEach((artist) => {
+        artistsIds.push(artist.id)
+      })
+    })
+    console.log(artistsIds)
+
+    // Separando os artistas em lotes de 50 para fazer as requisições do spotify
+    var artistsIdsChunks = [], size = 50;
+    while (artistsIds.length > 0)
+        artistsIdsChunks.push(artistsIds.splice(0, size));
+    console.log(artistsIdsChunks);
+
+    // Faz as requisições de cada lote de artistas
+    let artistsPromises = []
+    artistsIdsChunks.forEach((artistsIdsChunk) => {
+      artistsPromises.push(
+        axios.get('https://api.spotify.com/v1/artists?ids=' + artistsIdsChunk.join(","), {
+          headers: { 'Authorization': 'Bearer ' + req.query.access_token }
+        })
+      )
+    })
+
+    // Processa o body de todos as requisições dos lotes, quando terminar
+    axios.all(artistsPromises).then(function(results) {
+      console.log(results)
+
+      let genresNotes = new Map()
+
+      results.forEach((response) => {
+        response.data.artists.forEach((artist) => {
+          artist.genres.forEach((genre) => {
+            let genreNote = genresNotes.get(genre)
+            if(!genreNote) {
+              genreNote = 0
+            }
+            genresNotes.set(genre, genreNote + 1)
+          })
+        })
+      })
+
+      genresNotes = genresNotes.sort()
+      console.log(genresNotes.obj())
+      res.json(genresNotes.obj())
+    })
+  });
+});
+
 
 var port = process.env.PORT || 8000;
 //Produção
