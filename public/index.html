@@ -131,20 +131,20 @@
 
     <script id="user-profile-template" type="text/x-handlebars-template">
       <button onclick="location.href = '/'" style="float: right;">Sair</button>
-      <h1>Logado como {{display_name}}</h1>
+      <h1>Logado como {{nome}}</h1>
       <div class="media">
         <div class="pull-left">
-          <img class="media-object" width="150" src="{{images.0.url}}" />
+          <img class="media-object" width="150" src="{{url_imagem}}" />
         </div>
         <div class="media-body">
           <dl class="dl-horizontal">
-            <dt>Nome</dt><dd class="clearfix">{{display_name}}</dd>
-            <dt>ID</dt><dd>{{id}}</dd>
+            <dt>Nome</dt><dd class="clearfix">{{nome}}</dd>
+            <dt>ID</dt><dd>{{id_spotify}}</dd>
             <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Link Spotify</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
+            <dt>Link Spotify</dt><dd><a href="{{url_spotify}}" target="_blank">{{url_spotify}}</a></dd>
             <!-- <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd> -->
             <!-- <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd> -->
-            <dt>País</dt><dd>{{country}}</dd>
+            <!-- <dt>País</dt><dd>{{country}}</dd> -->
           </dl>
         </div>
       </div>
@@ -163,6 +163,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
     <script>
       (function() {
+
+        // Helpers
+        Map.prototype.sort = function() {
+          return new Map([...this.entries()].sort((a, b) => { return b[1] - a[1] }))
+        }
+
+        Map.prototype.obj = function() {
+          let obj = {}
+          for(let [key,val] of this.entries()){
+              obj[key]= val;
+          }
+          return obj
+        }
 
         /**
          * Obtains parameters from the hash of the URL
@@ -203,57 +216,57 @@
             // });
 
             $.ajax({
-                url: 'https://api.spotify.com/v1/me',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
+                url: '/getUser?access_token='+access_token,
                 success: function(response) {
+                  console.log(response)
                   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
 
+                  let genresNotes = new Map()
+
+                  // Monta a lista de gêneros com os pontos
+                  for(let genre in response.generos_escutados){
+                    let note = response.generos_escutados[genre]
+                    genresNotes.set(genre, note)
+                  }
+
+                  genresNotes = genresNotes.sort()
+
+
+                  for(let genre of genresNotes.keys()){
+                    let note = genresNotes.get(genre)
+                    document.querySelector("#genresNotesList").innerHTML += `<dt>${genre}</dt><dd class="text-overflow" style="width:initial">${note}</dd>`
+                  }
+
+                  // Monta o gráfico de gêneros com os pontos
+                  var dynamicColors = function() {
+                    let colors = ["#99FFCC","#CCCC99","#CCCCCC","#CCCCFF","#CCFF99","#CCFFCC","#CCFFFF","#FFCC99","#FFCCCC","#FFCCFF","#FFFF99","#FFFFCC"]
+                    return colors[parseInt(Math.random()*colors.length)]
+                  };
+                  var ctx = document.getElementById("myChart").getContext('2d');
+                  var myChart = new Chart(ctx, {
+                      type: 'pie',
+                      data: {
+                          labels: [...genresNotes.keys()],
+                          datasets: [{
+                              label: 'Gêneros',
+                              data: [...genresNotes.values()],
+                              backgroundColor: [...genresNotes.entries()].map(()=>{return dynamicColors()}),
+                              borderWidth: 1
+                          }]
+                      },
+                      options: {
+                        responsive: false, 
+                        maintainAspectRatio: true, 
+                        legend: {
+                            display: false
+                        },
+                      }
+                  });
+
+                  $('#loading').hide();
                   $('#login').hide();
                   $('#loggedin').show();
                 }
-            });
-
-            $.ajax({
-              url: '/get_listened?access_token='+access_token,
-            }).done(function(data) {
-              let genresNotes = new Map()
-
-              // Monta a lista de gêneros com os pontos
-              for(let genre in data){
-                let note = data[genre]
-                genresNotes.set(genre, note)
-                document.querySelector("#genresNotesList").innerHTML += `<dt>${genre}</dt><dd class="text-overflow" style="width:initial">${note}</dd>`
-              }
-
-              // Monta o gráfico de gêneros com os pontos
-              var dynamicColors = function() {
-                let colors = ["#99FFCC","#CCCC99","#CCCCCC","#CCCCFF","#CCFF99","#CCFFCC","#CCFFFF","#FFCC99","#FFCCCC","#FFCCFF","#FFFF99","#FFFFCC"]
-                return colors[parseInt(Math.random()*colors.length)]
-              };
-              var ctx = document.getElementById("myChart").getContext('2d');
-              var myChart = new Chart(ctx, {
-                  type: 'pie',
-                  data: {
-                      labels: [...genresNotes.keys()],
-                      datasets: [{
-                          label: 'Gêneros',
-                          data: [...genresNotes.values()],
-                          backgroundColor: [...genresNotes.entries()].map(()=>{return dynamicColors()}),
-                          borderWidth: 1
-                      }]
-                  },
-                  options: {
-                    responsive: false, 
-                    maintainAspectRatio: true, 
-                    legend: {
-                        display: false
-                    },
-                  }
-              });
-
-              $('#loading').hide();
             });
           } else {
               // render initial screen
