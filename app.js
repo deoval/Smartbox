@@ -191,7 +191,7 @@ app.get('/get_listened', function(req, res){
 
         // Monta as músicas tocadas salvas no usuário
         let musicasTocadas = []
-        musicasTocadasDocs.forEach((musicaTocadaDoc)=>{
+        musicasTocadasDocs.forEach((musicaTocadaDoc) => {
           musicasTocadas.push(musicaTocadaDoc.data())
         })
 
@@ -268,9 +268,9 @@ app.get('/get_listened', function(req, res){
 
             // Pega todos os artistas salvos no banco
             db.collection('artistas').get()
-              .then((artistaDocs)=>{
+              .then((artistaDocs) => {
                 let allSavedArtists = []
-                artistaDocs.forEach((artistaDoc)=>{
+                artistaDocs.forEach((artistaDoc) => {
                   allSavedArtists.push(artistaDoc.data())
                 })
 
@@ -320,21 +320,23 @@ app.get('/get_listened', function(req, res){
                     })
                   })
 
-                  // Prepara a lista de generos mais escutados
-                  let genresNotes = new Map()
+                  // Prepara a lista de generos escutados
+                  let genresNotes = {}
                   artistsListened.forEach((artist) => {
                     artist.generos.forEach((genre) => {
-                      let genreNote = genresNotes.get(genre)
-                      if(!genreNote) {
-                        genreNote = 0
+                      if(!genresNotes[genre]) {
+                        genresNotes[genre] = 0
                       }
-                      genresNotes.set(genre, genreNote + 1)
+                      genresNotes[genre] += 1
                     })
                   })
 
-                  // Ordena os generos mais escutados por nota, e envia
-                  genresNotes = genresNotes.sort()
-                  res.json(genresNotes.obj())
+                  db.collection('usuarios').doc(usuario.id).update({
+                      generos_escutados: genresNotes
+                    })
+                    .then(() => {
+                      res.json(genresNotes)
+                    })
                 })
               })
           });
