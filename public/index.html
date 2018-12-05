@@ -267,6 +267,11 @@
                   $('#loading').hide();
                   $('#login').hide();
                   $('#loggedin').show();
+                },
+                error: function(xhr,status,error) {
+                  if(xhr.status == 401) {
+                    location.href = '/login';
+                  }
                 }
             });
           } else {

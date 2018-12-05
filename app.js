@@ -147,6 +147,8 @@ app.get('/getUser/:userId?', function(req, res){
       .then((usuario) => {
         res.json(usuario)
       })
+  }).catch((err) => {
+    res.status(err.response.status).json(err.response.data.error);
   })
 });
 
