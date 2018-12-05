@@ -109,7 +109,7 @@ app.get('/callback', function(req, res) {
           let usuario = response.data
 
           // Salvando usuário no banco de dados
-          db.collection('usuarios').doc(body.id)
+          db.collection('usuarios').doc(usuario.id)
             .set({
               email: usuario.email,
               id_spotify: usuario.id,
