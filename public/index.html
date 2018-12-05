@@ -123,7 +123,7 @@
 
         <h2>Lista de gêneros mais escutados e suas pontuações</h2>
         <div style="text-align: center">
-          <canvas id="myChart" width="400" height="400" style="display: inline-block;"></canvas>
+          <canvas id="myChart" width="400" height="400" style="display: inline-block; max-width: 100%;"></canvas>
         </div>
         <dl id="genresNotesList" class="dl-horizontal">
         </dl>
@@ -134,7 +134,7 @@
       <button onclick="location.href = '/'" style="float: right;">Sair</button>
       <h1>Logado como {{nome}}</h1>
       <div class="media">
-        <div class="pull-left">
+        <div id="user-foto" class="pull-left">
           <img class="media-object" width="150" src="{{url_imagem}}" />
         </div>
         <div class="media-body">

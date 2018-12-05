@@ -128,6 +128,16 @@ button:active {
 
 /* Dashboard */
 
+@media (max-width: 768px) {
+  #user-foto {
+    float: none !important;
+    text-align: center;
+  }
+  #user-foto > img {
+    display: inline-block;
+  }
+}
+
 #genresNotesList {
   column-count: 4;
 }
@@ -136,8 +146,28 @@ button:active {
     column-count: 3;
   }
 }
-
-
+@media (max-width: 880px) {
+  #genresNotesList {
+    column-count: 2;
+  }
+}
+@media (max-width: 768px) {
+  #genresNotesList {
+    column-count: 1;
+  }
+}
+.dl-horizontal dt {
+    float: left;
+    width: 160px;
+    clear: left;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dl-horizontal dd {
+    margin-left: 180px;
+}
 
 
 
