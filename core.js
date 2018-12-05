@@ -15,8 +15,29 @@ var db = firebaseAdmin.firestore();
 
 
 module.exports = {
-  getUserFromDB: (id) => {
-    return db.collection('usuarios').doc(id).get()
+  getUserFromDB: (access_token, id) => {
+    return new Promise((resolve, reject) => {
+      db.collection('usuarios').doc(id).get()
+        .then((usuarioDoc) => {
+          let usuario = usuarioDoc.data()
+
+          // Pega a lista de gêneros usados pelo spotify e filtra a lista de gêneros escutados do usuário
+          axios.get('https://api.spotify.com/v1/recommendations/available-genre-seeds', {
+            headers: { 'Authorization': 'Bearer ' + access_token }
+          }).then(function(response) {
+            let spotifyGenres = response.data.genres
+            for(let genero_escutado in usuario.generos_escutados) {
+              if(!spotifyGenres.includes(genero_escutado)) {
+                usuario.generos_escutados[genero_escutado] = undefined
+              }
+            }
+            resolve(usuario)
+          })
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
   },
 
   collectAndProcessUserInfo: (access_token) => {

@@ -143,9 +143,9 @@ app.get('/getUser/:userId?', function(req, res){
   axios.get(endPoint, {
     headers: { 'Authorization': 'Bearer ' + req.query.access_token }
   }).then(function(response) {
-    core.getUserFromDB(response.data.id)
-      .then((usuarioDoc) => {
-        res.json(usuarioDoc.data())
+    core.getUserFromDB(req.query.access_token, response.data.id)
+      .then((usuario) => {
+        res.json(usuario)
       })
   })
 });
