@@ -20,7 +20,7 @@
 
   <body>
     <div id="loading">
-      <img src="assets/Rolling-1s-100px.gif" style="position:fixed;margin:auto;top:0;bottom:0;left:0;right:0;">
+      <img src="assets/Rolling-1s-100px.gif" style="position:fixed;margin:auto;top:0;bottom:0;left:0;right:0;z-index:99999;">
     </div>
 
     <div id="login">
@@ -137,15 +137,49 @@
         <br>
 
         <div class="acoes">
-          <button onclick="location.href = '/open-smartbox'">Abrir Smartbox</span></button>
+          <button data-toggle="modal" data-target="#smartboxModal">Abrir meu Smartbox</span></button>
+          <button data-toggle="modal" onclick="prompt('Entre com o ID do usuário que você deseja entrar na Smartbox:')">Entrar em um Smartbox</span></button>
         </div>
 
-        <h2>Lista de gêneros mais escutados e suas pontuações</h2>
+        <h2 class="text-center">Lista de gêneros mais escutados e suas pontuações</h2>
         <div style="text-align: center">
-          <canvas id="myChart" width="400" height="400" style="display: inline-block; max-width: 100%;"></canvas>
+          <canvas id="graficoMeusGeneros" width="400" height="400" style="display: inline-block; max-width: 100%;"></canvas>
         </div>
         <dl id="genresNotesList" class="dl-horizontal">
         </dl>
+      </div>
+    </div>
+
+    <!-- Smartbox Modal -->
+    <div class="modal fade" id="smartboxModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Smartbox de <span id="smartboxUserName"></span> (ID: <strong id="smartboxUserID"></strong>)</h4>
+          </div>
+          
+          <div class="modal-body">
+            <h3 class="text-center">Distribuição de Gêneros Musicais</h3>
+            <div style="text-align: center">
+              <canvas id="graficoDistribuicaoGenerosSmartbox" width="200" height="200" style="display: inline-block; max-width: 100%;"></canvas>
+            </div>
+
+            <dl id="genresNotesListSmartbox" class="dl-horizontal">
+            </dl>
+
+            <h3 class="text-center">Lista de Participantes</h3>
+
+            <ul id="usersListSmartbox">
+            </ul>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" onclick="loadMySmartboxUsers()">Atualizar Participantes</button>
+            <button type="button">Gerar Playlist</button>
+            <button type="button" data-dismiss="modal">Fechar</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -180,27 +214,32 @@
  -->
     <script src="handlebars.min.js"></script>
     <script src="jquery-1.10.1.min.js"></script>
+    <script src="bootstrap.min.js"></script>
     <script src="Chart.min.js"></script>
     <script>
+      // Helpers
+      Map.prototype.sort = function() {
+        return new Map([...this.entries()].sort((a, b) => { return b[1] - a[1] }))
+      }
+
+      Map.prototype.obj = function() {
+        let obj = {}
+        for(let [key,val] of this.entries()){
+            obj[key]= val;
+        }
+        return obj
+      }
+
+      String.prototype.capitalize = function() {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+      }
+      
+      var dynamicColors = function() {
+        let colors = ["#99FFCC","#CCCC99","#CCCCCC","#CCCCFF","#CCFF99","#CCFFCC","#CCFFFF","#FFCC99","#FFCCCC","#FFCCFF","#FFFF99","#FFFFCC"]
+        return colors[parseInt(Math.random()*colors.length)]
+      };
+
       (function() {
-
-        // Helpers
-        Map.prototype.sort = function() {
-          return new Map([...this.entries()].sort((a, b) => { return b[1] - a[1] }))
-        }
-
-        Map.prototype.obj = function() {
-          let obj = {}
-          for(let [key,val] of this.entries()){
-              obj[key]= val;
-          }
-          return obj
-        }
-
-        String.prototype.capitalize = function() {
-          return this.charAt(0).toUpperCase() + this.slice(1);
-        }
-
         /**
          * Obtains parameters from the hash of the URL
          * @return Object
@@ -239,6 +278,8 @@
             //   refresh_token: refresh_token
             // });
 
+            $("body").attr("data-access-token", access_token)
+
             $.ajax({
                 url: '/getUser?access_token='+access_token,
                 success: function(response) {
@@ -254,19 +295,14 @@
 
                   genresNotes = genresNotes.sort()
 
-
                   for(let genre of genresNotes.keys()){
                     let note = genresNotes.get(genre)
                     document.querySelector("#genresNotesList").innerHTML += `<dt>${genre}</dt><dd class="text-overflow" style="width:initial">${note}</dd>`
                   }
 
                   // Monta o gráfico de gêneros com os pontos
-                  var dynamicColors = function() {
-                    let colors = ["#99FFCC","#CCCC99","#CCCCCC","#CCCCFF","#CCFF99","#CCFFCC","#CCFFFF","#FFCC99","#FFCCCC","#FFCCFF","#FFFF99","#FFFFCC"]
-                    return colors[parseInt(Math.random()*colors.length)]
-                  };
-                  var ctx = document.getElementById("myChart").getContext('2d');
-                  var myChart = new Chart(ctx, {
+                  var ctx = document.getElementById("graficoMeusGeneros").getContext('2d');
+                  new Chart(ctx, {
                       type: 'pie',
                       data: {
                           labels: [...genresNotes.keys()],
@@ -285,6 +321,9 @@
                         },
                       }
                   });
+
+                  $("#smartboxUserName").html(response.nome)
+                  $("#smartboxUserID").html(response.id_spotify)
 
                   $('#loading').hide();
                   $('#login').hide();
@@ -319,6 +358,72 @@
           // }, false);
         }
       })();
+
+      $('#smartboxModal').on('show.bs.modal', function (event) {
+        loadMySmartboxUsers()
+      })
+
+      var loadMySmartboxUsers = () => {
+        let access_token = $("body").attr("data-access-token")
+
+        $('#loading').show();
+
+        $.ajax({
+          url: '/getMySmartboxUsers?access_token='+access_token,
+          success: function(response) {
+            document.querySelector("#usersListSmartbox").innerHTML = ""
+            let genresNotes = new Map()
+
+            response.forEach((usuarioSmartbox) => {
+              console.log(usuarioSmartbox)
+              // Monta a lista de usuários na tela
+              let nomeUsuario = usuarioSmartbox.usuario.nome.split(" ")[0] + " " + usuarioSmartbox.usuario.nome.split(" ").pop()
+              let imagemUsuario = usuarioSmartbox.usuario.url_imagem ? usuarioSmartbox.usuario.url_imagem : 'assets/user.png'
+              document.querySelector("#usersListSmartbox").innerHTML += `<li><img src="${imagemUsuario}" alt="" /> ${nomeUsuario} (@${usuarioSmartbox.usuario.id_spotify})</li>`
+
+              // Monta a lista de gêneros com os pontos
+              for(let genre in usuarioSmartbox.distribuicao){
+                if(genresNotes.get(genre.capitalize()) === undefined) {
+                  genresNotes.set(genre.capitalize(), 0)
+                }
+                let note = Math.round(usuarioSmartbox.distribuicao[genre] * 100)
+                genresNotes.set(genre.capitalize(), genresNotes.get(genre.capitalize()) + note)
+              }
+            })
+
+            genresNotes = genresNotes.sort()
+
+            document.querySelector("#genresNotesListSmartbox").innerHTML = ""
+            for(let genre of genresNotes.keys()){
+              let note = genresNotes.get(genre)
+              document.querySelector("#genresNotesListSmartbox").innerHTML += `<dt>${genre}</dt><dd class="text-overflow" style="width:initial">${note}</dd>`
+            }
+
+            var ctx = document.getElementById("graficoDistribuicaoGenerosSmartbox").getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [...genresNotes.keys()],
+                    datasets: [{
+                        label: 'Gêneros',
+                        data: [...genresNotes.values()],
+                        backgroundColor: [...genresNotes.entries()].map(()=>{return dynamicColors()}),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                  responsive: false, 
+                  maintainAspectRatio: true, 
+                  legend: {
+                      display: false
+                  },
+                }
+            });
+
+            $('#loading').hide();
+          }
+        })
+      }
     </script>
   </body>
 </html>

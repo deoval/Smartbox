@@ -138,6 +138,19 @@ app.get('/refresh_token', function(req, res) {
   });
 });
 
+app.get('/getMySmartboxUsers', function(req, res){
+  axios.get("https://api.spotify.com/v1/me", {
+    headers: { 'Authorization': 'Bearer ' + req.query.access_token }
+  }).then(function(response) {
+    core.getMySmartboxUsers(req.query.access_token, response.data.id)
+      .then((usuario) => {
+        res.json(usuario)
+      })
+  }).catch((err) => {
+    res.status(err.response.status).json(err.response.data.error);
+  })
+});
+
 app.get('/getUser/:userId?', function(req, res){
   let endPoint = req.params.userId ? "https://api.spotify.com/v1/users/"+req.params.userId : "https://api.spotify.com/v1/me"
   axios.get(endPoint, {

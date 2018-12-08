@@ -8,6 +8,7 @@
 }
 
 button {
+  margin: 5px;
   padding: 5px 10px;
   background: #1db954;
   color: white;
@@ -139,38 +140,68 @@ button:active {
   }
 }
 
-#genresNotesList {
+#genresNotesList, #genresNotesListSmartbox {
   column-count: 4;
 }
 @media (max-width: 991px) {
-  #genresNotesList {
+  #genresNotesList, #genresNotesListSmartbox {
     column-count: 3;
   }
 }
 @media (max-width: 880px) {
-  #genresNotesList {
+  #genresNotesList, #genresNotesListSmartbox {
     column-count: 2;
   }
 }
 @media (max-width: 768px) {
-  #genresNotesList {
+  #genresNotesList, #genresNotesListSmartbox {
     column-count: 1;
   }
 }
 .dl-horizontal dt {
-    float: left;
-    width: 160px;
-    clear: left;
-    text-align: right;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  float: left;
+  width: 160px;
+  clear: left;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .dl-horizontal dd {
-    margin-left: 180px;
+  margin-left: 180px;
 }
 
 
+@media (min-width: 1280px) {
+  .modal-dialog {
+      width: 1000px;
+      margin: 30px auto;
+  }
+}
 
-
-
+#usersListSmartbox {
+  margin: 10px 40px;
+  column-count: 3;
+}
+@media (max-width: 880px) {
+  #usersListSmartbox {
+  margin: 10px 25px;
+    column-count: 2;
+  }
+}
+@media (max-width: 768px) {
+  #usersListSmartbox {
+  margin: 10px 10px;
+    column-count: 1;
+  }
+}
+#usersListSmartbox li {
+  padding-top: 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+#usersListSmartbox img {
+  max-width: 50px;
+  max-height: 50px;
+}
