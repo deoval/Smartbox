@@ -79,6 +79,7 @@ button:active {
 /* Membros */
 
 #nossa-equipe {
+  padding-top: 0;
   text-align: center;
 }
 #nossa-equipe > .membro {
