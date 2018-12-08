@@ -102,20 +102,20 @@ button:active {
 
 /* Rodape */
 
-#acoes {
+.acoes {
   padding: 20px;
   text-align: center;
 }
-#acoes button {
+.acoes button {
   padding: 8px 12px;
   font-size: 2em;
   border-radius: 28px;
   white-space: nowrap;
 }
-#acoes button[disabled] {
+.acoes button[disabled] {
   background: gray !important
 }
-#acoes #spotify-logo {
+.acoes #spotify-logo {
   display: inline-block;
   margin-bottom: 3px;
   width: 104px;

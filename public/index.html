@@ -3,7 +3,7 @@
   <head>
     <title>Smartbox - TCC UFRJ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bootstrap.min.css">
     <link rel="stylesheet" href="main.css">
     <style type="text/css">
       #login, #loggedin {
@@ -81,7 +81,7 @@
     
           <input type="checkbox" name="permissaoAdicional" value="permiteAcesso"> Eu gostaria de fazer parte dos testes do projeto, permitindo assim acesso ao meu e-mail e data de nascimento cadastrados na minha conta do Spotify.<br>
     
-          <div id="acoes">
+          <div class="acoes">
             <button onclick="location.href = '/login'">Join on <span id="spotify-logo"></span></button>
           </div>
         </div>
@@ -120,6 +120,12 @@
         </div>
         <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
         -->
+        
+        <br>
+
+        <div class="acoes">
+          <button onclick="location.href = '/open-smartbox'">Abrir Smartbox</span></button>
+        </div>
 
         <h2>Lista de gêneros mais escutados e suas pontuações</h2>
         <div style="text-align: center">
@@ -159,9 +165,9 @@
       </dl>
     </script>
  -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
-    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+    <script src="handlebars.min.js"></script>
+    <script src="jquery-1.10.1.min.js"></script>
+    <script src="Chart.min.js"></script>
     <script>
       (function() {
 
@@ -176,6 +182,10 @@
               obj[key]= val;
           }
           return obj
+        }
+
+        String.prototype.capitalize = function() {
+          return this.charAt(0).toUpperCase() + this.slice(1);
         }
 
         /**
@@ -219,7 +229,6 @@
             $.ajax({
                 url: '/getUser?access_token='+access_token,
                 success: function(response) {
-                  console.log(response)
                   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
 
                   let genresNotes = new Map()
@@ -227,7 +236,7 @@
                   // Monta a lista de gêneros com os pontos
                   for(let genre in response.generos_escutados){
                     let note = response.generos_escutados[genre]
-                    genresNotes.set(genre, note)
+                    genresNotes.set(genre.capitalize(), note)
                   }
 
                   genresNotes = genresNotes.sort()
