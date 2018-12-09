@@ -55,11 +55,11 @@ core.getMySmartboxUsers = (access_token, id) => {
 
         db.collection('usuarios').doc(id).get()
           .then((usuarioDoc) => {
-            let usuarioSmartbox = {
+            let smartboxUsuario = {
               usuario: usuarioDoc.data(),
             }
 
-            let smartboxUsuarios = [usuarioSmartbox]
+            let smartboxUsuarios = [smartboxUsuario]
             smartboxUsuariosDoc.forEach((smartboxUsuarioDoc) => {
               smartboxUsuarios.push(smartboxUsuarioDoc.data())
             })
@@ -153,6 +153,36 @@ core.enterInSomeoneSmartbox = (access_token, userID) => {
                 resolve("Smartbox acessado com sucesso! Confira na tela do usuário acessado e peça-o para atualizar a lista de participantes.")
               })
             })
+        })
+    })
+    .catch((err) => {
+      reject(err);
+    })
+  })
+}
+
+/*
+ *
+ */
+core.removeAllSmartboxUsers = (access_token) => {
+  return new Promise((resolve, reject) => {
+    axios.get("https://api.spotify.com/v1/me", {
+      headers: { 'Authorization': 'Bearer ' + access_token }
+    })
+    .then(function(response) {
+
+      // 
+      db.collection('usuarios').doc(response.data.id).collection('smartbox_usuarios').get()
+        .then((smartboxUsuariosDoc) => {
+          let deletePromises = []
+
+          smartboxUsuariosDoc.forEach((smartboxUsuarioDoc) => {
+            deletePromises.push( smartboxUsuarioDoc.ref.delete() )
+          })
+
+          Promise.all(deletePromises).then(() => {
+            resolve(true)
+          })
         })
     })
     .catch((err) => {

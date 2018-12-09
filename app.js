@@ -199,6 +199,16 @@ app.get('/enterInSomeoneSmartbox', function(req, res){
     })
 });
 
+app.get('/removeAllSmartboxUsers', function(req, res){
+  core.removeAllSmartboxUsers(req.query.access_token)
+    .then((result) => {
+      res.json(result)
+    })
+    .catch((err) => {
+      res.status(err.response.status).json(err.response.data.error);
+    })
+});
+
 
 var port = process.env.PORT || 8000;
 console.log("Running on port: " + port)
