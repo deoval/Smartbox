@@ -4,6 +4,7 @@
     <title>Smartbox - TCC UFRJ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="bootstrap-toggle.min.css">
     <link rel="stylesheet" href="main.css">
     <style type="text/css">
       #login, #loggedin {
@@ -142,11 +143,12 @@
         </div>
 
         <h2 class="text-center">Lista de gêneros mais escutados e suas pontuações</h2>
+        
         <div style="text-align: center">
           <canvas id="graficoMeusGeneros" width="400" height="400" style="display: inline-block; max-width: 100%;"></canvas>
         </div>
-        <dl id="genresNotesList" class="dl-horizontal">
-        </dl>
+
+        <dl id="genresNotesList" class="dl-horizontal"></dl>
       </div>
     </div>
 
@@ -156,17 +158,18 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel">Smartbox de <span id="smartboxUserName"></span> (ID: <strong id="smartboxUserID"></strong>)</h4>
+            <h4 class="modal-title" id="myModalLabel">Smartbox de <span id="smartboxUserName"></span> (ID: <strong id="smartboxUserID"></strong>) <small><i>Convide amigos para participar entrando com seu ID</i></small> <input id="smartbox-open-button" type="checkbox" data-toggle="toggle" data-on="Ligado" data-off="Desligado" data-width="100" data-onstyle="success"></h4>
           </div>
           
           <div class="modal-body">
-            <h3 class="text-center">Distribuição de Gêneros Musicais</h3>
+            <h3 class="text-center">Distribuição de Gêneros Musicais Recomendados para o Grupo</h3>
             <div style="text-align: center">
               <canvas id="graficoDistribuicaoGenerosSmartbox" width="200" height="200" style="display: inline-block; max-width: 100%;"></canvas>
             </div>
 
-            <dl id="genresNotesListSmartbox" class="dl-horizontal">
-            </dl>
+            <dl id="genresNotesListSmartbox" class="dl-horizontal"></dl>
+
+            <hr>
 
             <h3 class="text-center">Lista de Participantes</h3>
 
@@ -175,8 +178,9 @@
           </div>
 
           <div class="modal-footer">
+            <button type="button" onclick="" data-distribuicao="">Gerar Playlist</button>
             <button type="button" onclick="loadMySmartboxUsers()">Atualizar Participantes</button>
-            <button type="button">Gerar Playlist</button>
+            <button type="button" onclick="">Remover Participantes</button>
             <button type="button" data-dismiss="modal">Fechar</button>
           </div>
         </div>
@@ -215,6 +219,7 @@
     <script src="handlebars.min.js"></script>
     <script src="jquery-1.10.1.min.js"></script>
     <script src="bootstrap.min.js"></script>
+    <script src="bootstrap-toggle.min.js"></script>
     <script src="Chart.min.js"></script>
     <script>
       // Helpers
@@ -357,11 +362,23 @@
           //   });
           // }, false);
         }
-      })();
 
-      $('#smartboxModal').on('show.bs.modal', function (event) {
-        loadMySmartboxUsers()
-      })
+        $('#smartboxModal').on('show.bs.modal', function (event) {
+          loadMySmartboxUsers()
+        })
+
+        $('#smartbox-open-button').change(function() {
+          $.ajax({
+            url: `/setSmartboxOpenStatus?status=${$(this).prop('checked')}&access_token=${access_token}`,
+            error: function(xhr,status,error) {
+              if(xhr.status == 401) {
+                alert("Sessão expirada. Pressione OK para relogar.")
+                location.href = '/login';
+              }
+            }
+          })
+        })
+      })();
 
       var loadMySmartboxUsers = () => {
         let access_token = $("body").attr("data-access-token")
@@ -421,6 +438,12 @@
             });
 
             $('#loading').hide();
+          },
+          error: function(xhr,status,error) {
+            if(xhr.status == 401) {
+              alert("Sessão expirada. Pressione OK para relogar.")
+              location.href = '/login';
+            }
           }
         })
       }

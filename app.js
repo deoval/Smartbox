@@ -114,39 +114,41 @@ app.get('/callback', function(req, res) {
   }
 });
 
-app.get('/refresh_token', function(req, res) {
+// app.get('/refresh_token', function(req, res) {
 
-  // requesting access token from refresh token
-  var refresh_token = req.query.refresh_token;
-  var authOptions = {
-    url: 'https://accounts.spotify.com/api/token',
-    headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-    form: {
-      grant_type: 'refresh_token',
-      refresh_token: refresh_token
-    },
-    json: true
-  };
+//   // requesting access token from refresh token
+//   var refresh_token = req.query.refresh_token;
+//   var authOptions = {
+//     url: 'https://accounts.spotify.com/api/token',
+//     headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
+//     form: {
+//       grant_type: 'refresh_token',
+//       refresh_token: refresh_token
+//     },
+//     json: true
+//   };
 
-  request.post(authOptions, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-      var access_token = body.access_token;
-      res.send({
-        'access_token': access_token
-      });
-    }
-  });
-});
+//   request.post(authOptions, function(error, response, body) {
+//     if (!error && response.statusCode === 200) {
+//       var access_token = body.access_token;
+//       res.send({
+//         'access_token': access_token
+//       });
+//     }
+//   });
+// });
 
 app.get('/getMySmartboxUsers', function(req, res){
   axios.get("https://api.spotify.com/v1/me", {
     headers: { 'Authorization': 'Bearer ' + req.query.access_token }
-  }).then(function(response) {
+  })
+  .then(function(response) {
     core.getMySmartboxUsers(req.query.access_token, response.data.id)
       .then((usuario) => {
         res.json(usuario)
       })
-  }).catch((err) => {
+  })
+  .catch((err) => {
     res.status(err.response.status).json(err.response.data.error);
   })
 });
@@ -155,12 +157,14 @@ app.get('/getUser/:userId?', function(req, res){
   let endPoint = req.params.userId ? "https://api.spotify.com/v1/users/"+req.params.userId : "https://api.spotify.com/v1/me"
   axios.get(endPoint, {
     headers: { 'Authorization': 'Bearer ' + req.query.access_token }
-  }).then(function(response) {
+  })
+  .then(function(response) {
     core.getUserFromDB(req.query.access_token, response.data.id)
       .then((usuario) => {
         res.json(usuario)
       })
-  }).catch((err) => {
+  })
+  .catch((err) => {
     res.status(err.response.status).json(err.response.data.error);
   })
 });
@@ -169,6 +173,19 @@ app.get('/collectAndProcessUserInfo', function(req, res){
   core.collectAndProcessUserInfo(req.query.access_token)
     .then((result) => {
       res.json(result)
+    })
+    .catch((err) => {
+      res.status(err.response.status).json(err.response.data.error);
+    })
+});
+
+app.get('/setSmartboxOpenStatus', function(req, res){
+  core.setSmartboxOpenStatus(req.query.access_token, req.query.status == "true")
+    .then((result) => {
+      res.json(result)
+    })
+    .catch((err) => {
+      res.status(err.response.status).json(err.response.data.error);
     })
 });
 

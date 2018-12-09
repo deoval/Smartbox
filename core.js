@@ -43,11 +43,10 @@ core.getUserFromDB = (access_token, id) => {
         reject(err)
       })
   })
-},
+}
 
 /*
- *  Pega o Usuário de uma id salvo no banco, e filtra sua lista de gêneros
- *  escutados para apenas os gêneros aceitos pela busca do spotify 
+ *
  */
 core.getMySmartboxUsers = (access_token, id) => {
   return new Promise((resolve, reject) => {
@@ -58,7 +57,6 @@ core.getMySmartboxUsers = (access_token, id) => {
           .then((usuarioDoc) => {
             let usuarioSmartbox = {
               usuario: usuarioDoc.data(),
-              permitido: true,
               host: true
             }
 
@@ -99,7 +97,28 @@ core.getMySmartboxUsers = (access_token, id) => {
         reject(err)
       })
   })
-},
+}
+
+/*
+ *
+ */
+core.setSmartboxOpenStatus = (access_token, status) => {
+  return new Promise((resolve, reject) => {
+    axios.get("https://api.spotify.com/v1/me", {
+      headers: { 'Authorization': 'Bearer ' + access_token }
+    })
+    .then(function(response) {
+      resolve(
+        db.collection('usuarios').doc(response.data.id).update({
+          smartbox_open: status
+        })
+      )
+    })
+    .catch((err) => {
+      reject(err);
+    })
+  })
+}
   
 /*
  *  Prepara a coleta de dados sobre os gostos do usuário
