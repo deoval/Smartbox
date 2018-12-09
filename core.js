@@ -57,7 +57,6 @@ core.getMySmartboxUsers = (access_token, id) => {
           .then((usuarioDoc) => {
             let usuarioSmartbox = {
               usuario: usuarioDoc.data(),
-              host: true
             }
 
             let smartboxUsuarios = [usuarioSmartbox]
@@ -113,6 +112,48 @@ core.setSmartboxOpenStatus = (access_token, status) => {
           smartbox_open: status
         })
       )
+    })
+    .catch((err) => {
+      reject(err);
+    })
+  })
+}
+
+/*
+ *
+ */
+core.enterInSomeoneSmartbox = (access_token, userID) => {
+  return new Promise((resolve, reject) => {
+    axios.get("https://api.spotify.com/v1/me", {
+      headers: { 'Authorization': 'Bearer ' + access_token }
+    })
+    .then(function(response) {
+
+      // Pega no banco o usuário atualmente logado
+      db.collection('usuarios').doc(response.data.id).get()
+        .then((meuUsuarioDoc) => {
+          let meuUsuario = meuUsuarioDoc.data()
+
+          // Pega no banco o usuário alvo
+          db.collection('usuarios').doc(userID).get()
+            .then((usuarioDoc) => {
+              if(!usuarioDoc.exists) {
+                resolve("Usuário não cadastrado no Smartbox.")
+              } else if(usuarioDoc.data().id == meuUsuario.id) {
+                resolve("Não pode escolher a si mesmo.")
+              } else if(!usuarioDoc.data().smartbox_open) {
+                resolve("O Smartbox do usuário alvo não está aberto para participantes.")
+              }
+
+              // Cria registro de entrada na sala do usuário alvo
+              db.collection('usuarios').doc(userID).collection('smartbox_usuarios').doc(meuUsuario.id_spotify).set({
+                usuario: meuUsuario
+              })
+              .then(() => {
+                resolve("Smartbox acessado com sucesso! Confira na tela do usuário acessado e peça-o para atualizar a lista de participantes.")
+              })
+            })
+        })
     })
     .catch((err) => {
       reject(err);

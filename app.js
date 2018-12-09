@@ -189,6 +189,16 @@ app.get('/setSmartboxOpenStatus', function(req, res){
     })
 });
 
+app.get('/enterInSomeoneSmartbox', function(req, res){
+  core.enterInSomeoneSmartbox(req.query.access_token, req.query.userID)
+    .then((result) => {
+      res.json(result)
+    })
+    .catch((err) => {
+      res.status(err.response.status).json(err.response.data.error);
+    })
+});
+
 
 var port = process.env.PORT || 8000;
 console.log("Running on port: " + port)
