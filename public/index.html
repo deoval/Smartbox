@@ -142,7 +142,7 @@
           <button data-toggle="modal" onclick="enterInSomeoneSmartbox()">Entrar em um Smartbox</span></button>
         </div>
 
-        <h2 class="text-center">Lista de gêneros mais escutados e suas pontuações</h2>
+        <h2 class="text-center">Lista de gêneros mais escutados e seus percentuais</h2>
         
         <div style="text-align: center">
           <canvas id="graficoMeusGeneros" width="300" height="300" style="display: inline-block; max-width: 100%;"></canvas>
@@ -162,7 +162,7 @@
           </div>
           
           <div class="modal-body">
-            <h3 class="text-center">Distribuição de Gêneros Musicais Recomendados para o Grupo</h3>
+            <h3 class="text-center">Distribuição Percentual de Gêneros Musicais<br>Recomendados para o Grupo</h3>
             <div style="text-align: center">
               <canvas id="graficoDistribuicaoGenerosSmartbox" width="200" height="200" style="display: inline-block; max-width: 100%;"></canvas>
             </div>
@@ -292,9 +292,14 @@
 
                   let genresNotes = new Map()
 
+                  let totalPoints = 0
+                  for(let genre in response.generos_escutados){
+                    totalPoints += response.generos_escutados[genre]
+                  }
+
                   // Monta a lista de gêneros com os pontos
                   for(let genre in response.generos_escutados){
-                    let note = response.generos_escutados[genre]
+                    let note = Math.round(response.generos_escutados[genre] / totalPoints * 100)
                     genresNotes.set(genre.capitalize(), note)
                   }
 
