@@ -296,14 +296,9 @@
 
                   let genresNotes = new Map()
 
-                  let totalPoints = 0
-                  for(let genre in response.generos_escutados){
-                    totalPoints += response.generos_escutados[genre]
-                  }
-
                   // Monta a lista de gêneros com os pontos
                   for(let genre in response.generos_escutados){
-                    let note = Math.round(response.generos_escutados[genre] / totalPoints * 100)
+                    let note = Math.round(response.generos_escutados[genre] * 100)
                     genresNotes.set(genre.capitalize(), note)
                   }
 
@@ -467,12 +462,12 @@
 
         $.ajax({
           url: '/getMySmartboxUsers?access_token='+access_token,
-          success: function(response) {
+          success: function(usuariosSmartbox) {
             document.querySelector("#usersListSmartbox").innerHTML = ""
             let genresNotesObj = {}
             let genresNotes = new Map()
 
-            response.forEach((usuarioSmartbox) => {
+            usuariosSmartbox.forEach((usuarioSmartbox) => {
               // Monta a lista de usuários na tela
               let nomeUsuario = usuarioSmartbox.usuario.nome.split(" ")[0] + " " + usuarioSmartbox.usuario.nome.split(" ").pop()
               let imagemUsuario = usuarioSmartbox.usuario.url_imagem ? usuarioSmartbox.usuario.url_imagem : 'assets/user.png'
@@ -484,7 +479,7 @@
                   genresNotesObj[genre] = 0
                   genresNotes.set(genre.capitalize(), 0)
                 }
-                let note = Math.round(usuarioSmartbox.distribuicao[genre] * 100)
+                let note = Math.round(usuarioSmartbox.distribuicao[genre] * 100) / usuariosSmartbox.length 
                 genresNotesObj[genre] += note
                 genresNotes.set(genre.capitalize(), genresNotes.get(genre.capitalize()) + note)
               }

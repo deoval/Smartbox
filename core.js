@@ -35,11 +35,22 @@ core.getUserFromDB = (access_token, id) => {
           headers: { 'Authorization': 'Bearer ' + access_token }
         }).then(function(response) {
           let spotifyGenres = response.data.genres
+
+          let totalNote = 0
           for(let genero_escutado in usuario.generos_escutados) {
             if(!spotifyGenres.includes(genero_escutado)) {
               delete usuario.generos_escutados[genero_escutado]
+            } else {
+              totalNote += usuario.generos_escutados[genero_escutado]
             }
           }
+
+          for(let genero_escutado in usuario.generos_escutados) {
+            let percentualGenreNote = usuario.generos_escutados[genero_escutado] / totalNote
+            usuario.generos_escutados[genero_escutado] = percentualGenreNote
+          }
+          
+console.log(usuario.generos_escutados)
           resolve(usuario)
         })
       })
@@ -243,7 +254,6 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
         let playlistID = response.data.id
         let playlistURL = response.data.external_urls.spotify
         let userID = response.data.owner.id
-          console.log(response.data.owner)
 
         let musicsURIRecomendationList = []
 
@@ -258,7 +268,6 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
           headers: { 'Authorization': 'Bearer ' + access_token }
         })
         .then(() => {
-          console.log(userID)
           db.collection('usuarios').doc(userID).update({
             smartbox_playlist_url: playlistURL
           })
