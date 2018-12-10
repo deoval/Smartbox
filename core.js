@@ -233,10 +233,13 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
           headers: { 'Authorization': 'Bearer ' + access_token }
         })
         .then((response) => {
-          musicRecomendationListsByGenre[seed_genres] = response.data.tracks
+          if(response.data.tracks && response.data.tracks > 0) {
+            musicRecomendationListsByGenre[seed_genres] = response.data.tracks
+          }
         })
         .catch((err) => {
-          reject(err.response.data)
+          console.log("ERR 1")
+          reject(err)
         })
       )
     })
@@ -258,9 +261,11 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
 
         let musicsURIRecomendationList = []
         ordenedGenres.forEach((genre) => {
-          musicsURIRecomendationList = musicsURIRecomendationList.concat(
-            musicRecomendationListsByGenre[genre].map(music => music.uri)
-          )
+          if(musicRecomendationListsByGenre[genre] && musicRecomendationListsByGenre[genre] > 0) {
+            musicsURIRecomendationList = musicsURIRecomendationList.concat(
+                musicRecomendationListsByGenre[genre].map(music => music.uri)
+            )
+          }
         })
 
         axios.post(`https://api.spotify.com/v1/playlists/${playlistID}/tracks?uris=${musicsURIRecomendationList.join(',')}`, 
@@ -275,9 +280,14 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
             resolve({ playlist_url: playlistURL })
           })
         })
+        .catch((err) => {
+          console.log("ERR 3")
+          reject(err)
+        })
       })
       .catch((err) => {
-        reject(err.response.data)
+        console.log("ERR 2")
+        reject(err)
       })
     })
   })
