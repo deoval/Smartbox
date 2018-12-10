@@ -233,12 +233,9 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
           headers: { 'Authorization': 'Bearer ' + access_token }
         })
         .then((response) => {
-          if(response.data.tracks && response.data.tracks > 0) {
-            musicRecomendationListsByGenre[seed_genres] = response.data.tracks
-          }
+          musicRecomendationListsByGenre[seed_genres] = response.data.tracks
         })
         .catch((err) => {
-          console.log("ERR 1")
           reject(err)
         })
       )
@@ -261,18 +258,21 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
 
         let musicsURIRecomendationList = []
         ordenedGenres.forEach((genre) => {
-          if(musicRecomendationListsByGenre[genre] && musicRecomendationListsByGenre[genre] > 0) {
+          if(musicRecomendationListsByGenre[genre]) {
             musicsURIRecomendationList = musicsURIRecomendationList.concat(
                 musicRecomendationListsByGenre[genre].map(music => music.uri)
             )
           }
         })
-
-        axios.post(`https://api.spotify.com/v1/playlists/${playlistID}/tracks?uris=${musicsURIRecomendationList.splice(0, 100).join(',')}`, 
-          null, {
+console.log(musicsURIRecomendationList.splice(0, 100))
+        axios.post(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {
+            uris: musicsURIRecomendationList.splice(0, 100)
+          }, {
           headers: { 'Authorization': 'Bearer ' + access_token }
         })
-        .then(() => {
+        .then((res) => {
+console.log("res")
+console.log(res)
           db.collection('usuarios').doc(userID).update({
             smartbox_playlist_url: playlistURL
           })
@@ -281,12 +281,12 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
           })
         })
         .catch((err) => {
-          console.log("ERR 3")
+console.log("ERR 1")
+console.log(err.response.data)
           reject(err)
         })
       })
       .catch((err) => {
-        console.log("ERR 2")
         reject(err)
       })
     })
