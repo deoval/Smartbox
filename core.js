@@ -153,19 +153,19 @@ core.enterInSomeoneSmartbox = (access_token, userID) => {
             .then((usuarioDoc) => {
               if(!usuarioDoc.exists) {
                 resolve("Usuário não cadastrado no Smartbox.")
-              } else if(usuarioDoc.data().id == meuUsuario.id) {
+              } else if(usuarioDoc.data().id_spotify == meuUsuario.id_spotify) {
                 resolve("Não pode escolher a si mesmo.")
               } else if(!usuarioDoc.data().smartbox_open) {
                 resolve("O Smartbox do usuário alvo não está aberto para participantes.")
+              } else {
+                // Cria registro de entrada na sala do usuário alvo
+                db.collection('usuarios').doc(userID).collection('smartbox_usuarios').doc(meuUsuario.id_spotify).set({
+                  usuario: meuUsuario
+                })
+                .then(() => {
+                  resolve("Smartbox acessado com sucesso! Confira na tela do usuário acessado e peça-o para atualizar a lista de participantes.")
+                })
               }
-
-              // Cria registro de entrada na sala do usuário alvo
-              db.collection('usuarios').doc(userID).collection('smartbox_usuarios').doc(meuUsuario.id_spotify).set({
-                usuario: meuUsuario
-              })
-              .then(() => {
-                resolve("Smartbox acessado com sucesso! Confira na tela do usuário acessado e peça-o para atualizar a lista de participantes.")
-              })
             })
         })
     })
