@@ -298,7 +298,7 @@
 
                   // Monta a lista de gêneros com os pontos
                   for(let genre in response.generos_escutados){
-                    let note = Math.round(response.generos_escutados[genre] * 100)
+                    let note = Math.ceil(response.generos_escutados[genre] * 100)
                     genresNotes.set(genre.capitalize(), note)
                   }
 
@@ -479,7 +479,7 @@
                   genresNotesObj[genre] = 0
                   genresNotes.set(genre.capitalize(), 0)
                 }
-                let note = Math.round(usuarioSmartbox.distribuicao[genre] * 100 / usuariosSmartbox.length)
+                let note = Math.ceil(usuarioSmartbox.distribuicao[genre] * 100 / usuariosSmartbox.length)
                 genresNotesObj[genre] += note
                 genresNotes.set(genre.capitalize(), genresNotes.get(genre.capitalize()) + note)
               }

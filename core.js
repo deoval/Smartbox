@@ -50,7 +50,6 @@ core.getUserFromDB = (access_token, id) => {
             usuario.generos_escutados[genero_escutado] = percentualGenreNote
           }
           
-console.log(usuario.generos_escutados)
           resolve(usuario)
         })
       })
@@ -218,7 +217,6 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
     }
 
     distribuicaoMap = distribuicaoMap.sort()
-    
     let musicRecomendationPromisesByGenres = []
     let musicRecomendationListsByGenre = {}
 
@@ -238,8 +236,7 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
           musicRecomendationListsByGenre[seed_genres] = response.data.tracks
         })
         .catch((err) => {
-          console.log(err)
-          reject(err)
+          reject(err.response.data)
         })
       )
     })
@@ -260,7 +257,6 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
         let userID = response.data.owner.id
 
         let musicsURIRecomendationList = []
-
         ordenedGenres.forEach((genre) => {
           musicsURIRecomendationList = musicsURIRecomendationList.concat(
             musicRecomendationListsByGenre[genre].map(music => music.uri)
@@ -281,8 +277,7 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
         })
       })
       .catch((err) => {
-        console.log(err)
-        reject(err)
+        reject(err.response.data)
       })
     })
   })
