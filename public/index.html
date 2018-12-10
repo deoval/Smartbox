@@ -479,7 +479,7 @@
                   genresNotesObj[genre] = 0
                   genresNotes.set(genre.capitalize(), 0)
                 }
-                let note = Math.round(usuarioSmartbox.distribuicao[genre] * 100) / usuariosSmartbox.length 
+                let note = Math.round(usuarioSmartbox.distribuicao[genre] * 100 / usuariosSmartbox.length)
                 genresNotesObj[genre] += note
                 genresNotes.set(genre.capitalize(), genresNotes.get(genre.capitalize()) + note)
               }
