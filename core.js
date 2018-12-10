@@ -264,15 +264,13 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
             )
           }
         })
-console.log(musicsURIRecomendationList.splice(0, 100))
+
         axios.post(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {
             uris: musicsURIRecomendationList.splice(0, 100)
           }, {
           headers: { 'Authorization': 'Bearer ' + access_token }
         })
         .then((res) => {
-console.log("res")
-console.log(res)
           db.collection('usuarios').doc(userID).update({
             smartbox_playlist_url: playlistURL
           })
@@ -281,8 +279,6 @@ console.log(res)
           })
         })
         .catch((err) => {
-console.log("ERR 1")
-console.log(err.response.data)
           reject(err)
         })
       })
