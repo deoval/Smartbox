@@ -268,7 +268,7 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
           }
         })
 
-        axios.post(`https://api.spotify.com/v1/playlists/${playlistID}/tracks?uris=${musicsURIRecomendationList.join(',')}`, 
+        axios.post(`https://api.spotify.com/v1/playlists/${playlistID}/tracks?uris=${musicsURIRecomendationList.splice(0, 100).join(',')}`, 
           null, {
           headers: { 'Authorization': 'Bearer ' + access_token }
         })
