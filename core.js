@@ -237,6 +237,10 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
         .then((response) => {
           musicRecomendationListsByGenre[seed_genres] = response.data.tracks
         })
+        .catch((err) => {
+          console.log(err)
+          reject(err)
+        })
       )
     })
 
@@ -275,6 +279,10 @@ core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
             resolve({ playlist_url: playlistURL })
           })
         })
+      })
+      .catch((err) => {
+        console.log(err)
+        reject(err)
       })
     })
   })
