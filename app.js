@@ -7,6 +7,7 @@
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
 var express = require('express'); // Express web server framework
+var bodyParser = require('body-parser');
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var axios = require('axios');
@@ -38,8 +39,12 @@ var stateKey = 'spotify_auth_state';
 var app = express();
 
 app.use(express.static(__dirname + '/public'))
-   .use(cookieParser());
+   .use(cookieParser())
+   .use(bodyParser.urlencoded({extended: false}))
 
+var port = process.env.PORT || 8000;
+console.log("Running on port: " + port)
+app.listen(port);
 
 // Routes
 
@@ -49,7 +54,7 @@ app.get('/login', function(req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email user-library-read user-read-recently-played';
+  var scope = 'user-read-private user-read-email user-library-read user-read-recently-played playlist-modify-public';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -209,7 +214,12 @@ app.get('/removeAllSmartboxUsers', function(req, res){
     })
 });
 
-
-var port = process.env.PORT || 8000;
-console.log("Running on port: " + port)
-app.listen(port);
+app.post('/generatePlaylistFromDistribution', function(req, res){
+  core.generatePlaylistFromDistribution(req.query.access_token, req.body)
+    .then((result) => {
+      res.json(result)
+    })
+    .catch((err) => {
+      res.status(err.response.status).json(err.response.data.error);
+    })
+});

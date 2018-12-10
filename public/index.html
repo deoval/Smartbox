@@ -62,6 +62,7 @@
               <li><i>user-library-read</i> : Acessar suas faixas, álbuns e programas salvos.</li>
               <li><i>playlist-read-private</i> : Acessar suas playlists particulares.</li> 
               <li><i>playlist-read-collaborative</i> :  Acessar suas playlists colaborativas.</li>
+              <li><i>playlist-modify-public</i> :  Acesso de gravação às listas de reprodução públicas. (Para gerar as playlists)</li>
             </ul>
             
             <h2>Permissões opcionais</h2>
@@ -178,7 +179,10 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" onclick="" data-distribuicao="">Gerar Playlist</button>
+            <a id="accessPlaylist" href="" target="_blank" style="display: none;">
+              <button type="button" style="background: #1dabb9;">Acessar Playlist Gerada</button>
+            </a>
+            <button type="button" onclick="generatePlaylist()" id="generatePlaylistButton" data-distribuicao="">Gerar Nova Playlist</button>
             <button type="button" onclick="loadMySmartboxUsers()">Atualizar Participantes</button>
             <button type="button" onclick="removeAllSmartboxUsers()">Remover Participantes</button>
             <button type="button" data-dismiss="modal">Fechar</button>
@@ -335,6 +339,10 @@
                   $("#smartboxUserName").html(response.nome)
                   $("#smartboxUserID").html(response.id_spotify)
                   $("#smartbox-open-button").bootstrapToggle(response.smartbox_open ? 'on' : 'off')
+                  if(response.smartbox_playlist_url) {
+                    $("#accessPlaylist").attr("href", response.smartbox_playlist_url)
+                    $("#accessPlaylist").show()
+                  }
 
                   $('#loading').hide();
                   $('#login').hide();
@@ -428,6 +436,32 @@
         }
       }
 
+      var generatePlaylist = () => {
+        let distribuicao = JSON.parse($("#generatePlaylistButton").attr("data-distribuicao"))
+
+        if(confirm("Deseja gerar uma nova playlist?")) {
+          $('#loading').show();
+
+          $.ajax({
+            method: 'POST',
+            url: `/generatePlaylistFromDistribution?access_token=${access_token}`,
+            data: distribuicao,
+            success: function(response) {
+              $('#loading').hide();
+              $("#accessPlaylist").attr("href", response.playlist_url)
+              $("#accessPlaylist").show()
+              alert("Playlist gerada com sucesso, e adicionada à sua conta. Acesse no botão abaixo.")
+            },
+            error: function(xhr,status,error) {
+              if(xhr.status == 401) {
+                alert("Sessão expirada. Pressione OK para relogar.")
+                location.href = '/login';
+              }
+            }
+          })
+        }
+      }
+
       var loadMySmartboxUsers = () => {
         $('#loading').show();
 
@@ -435,10 +469,10 @@
           url: '/getMySmartboxUsers?access_token='+access_token,
           success: function(response) {
             document.querySelector("#usersListSmartbox").innerHTML = ""
+            let genresNotesObj = {}
             let genresNotes = new Map()
 
             response.forEach((usuarioSmartbox) => {
-              console.log(usuarioSmartbox)
               // Monta a lista de usuários na tela
               let nomeUsuario = usuarioSmartbox.usuario.nome.split(" ")[0] + " " + usuarioSmartbox.usuario.nome.split(" ").pop()
               let imagemUsuario = usuarioSmartbox.usuario.url_imagem ? usuarioSmartbox.usuario.url_imagem : 'assets/user.png'
@@ -447,14 +481,18 @@
               // Monta a lista de gêneros com os pontos
               for(let genre in usuarioSmartbox.distribuicao){
                 if(genresNotes.get(genre.capitalize()) === undefined) {
+                  genresNotesObj[genre] = 0
                   genresNotes.set(genre.capitalize(), 0)
                 }
                 let note = Math.round(usuarioSmartbox.distribuicao[genre] * 100)
+                genresNotesObj[genre] += note
                 genresNotes.set(genre.capitalize(), genresNotes.get(genre.capitalize()) + note)
               }
             })
 
             genresNotes = genresNotes.sort()
+
+            $("#generatePlaylistButton").attr("data-distribuicao", JSON.stringify(genresNotesObj))
 
             document.querySelector("#genresNotesListSmartbox").innerHTML = ""
             for(let genre of genresNotes.keys()){

@@ -13,6 +13,10 @@ firebaseAdmin.initializeApp({
 });
 var db = firebaseAdmin.firestore();
 
+// Helpers
+Map.prototype.sort = function() {
+  return new Map([...this.entries()].sort((a, b) => { return b[1] - a[1] }))
+}
 
 core = {}
   
@@ -187,6 +191,82 @@ core.removeAllSmartboxUsers = (access_token) => {
     })
     .catch((err) => {
       reject(err);
+    })
+  })
+}
+
+/*
+ *
+ */
+core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
+  return new Promise((resolve, reject) => {
+    let distribuicaoMap = new Map()
+
+    for(let genre in distribuicao){
+      distribuicaoMap.set(genre, distribuicao[genre])
+    }
+
+    distribuicaoMap = distribuicaoMap.sort()
+    
+    let musicRecomendationPromisesByGenres = []
+    let musicRecomendationListsByGenre = {}
+
+    let ordenedGenres = [...distribuicaoMap.keys()]
+    ordenedGenres.forEach((genre) => {
+      let limit = distribuicaoMap.get(genre)
+      let seed_genres = genre
+      let min_popularity = 50
+
+      let query = `limit=${limit}&seed_genres=${seed_genres}&min_popularity=${min_popularity}`
+      
+      musicRecomendationPromisesByGenres.push(
+        axios.get("https://api.spotify.com/v1/recommendations?" + query, {
+          headers: { 'Authorization': 'Bearer ' + access_token }
+        })
+        .then((response) => {
+          musicRecomendationListsByGenre[seed_genres] = response.data.tracks
+        })
+      )
+    })
+
+    Promise.all(musicRecomendationPromisesByGenres).then(() => {
+      let date = new Date()
+      
+      axios.post("https://api.spotify.com/v1/me/playlists", {
+        name: `Smartbox ${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`,
+        description: "Uma playlist para grupos criada pela aplicação Smartbox",
+        public: true
+      }, {
+        headers: { 'Authorization': 'Bearer ' + access_token }
+      })
+      .then((response) => {
+        let playlistID = response.data.id
+        let playlistURL = response.data.external_urls.spotify
+        let userID = response.data.owner.id
+          console.log(response.data.owner)
+
+        let musicsURIRecomendationList = []
+
+        ordenedGenres.forEach((genre) => {
+          musicsURIRecomendationList = musicsURIRecomendationList.concat(
+            musicRecomendationListsByGenre[genre].map(music => music.uri)
+          )
+        })
+
+        axios.post(`https://api.spotify.com/v1/playlists/${playlistID}/tracks?uris=${musicsURIRecomendationList.join(',')}`, 
+          null, {
+          headers: { 'Authorization': 'Bearer ' + access_token }
+        })
+        .then(() => {
+          console.log(userID)
+          db.collection('usuarios').doc(userID).update({
+            smartbox_playlist_url: playlistURL
+          })
+          .then(() => {
+            resolve({ playlist_url: playlistURL })
+          })
+        })
+      })
     })
   })
 }
