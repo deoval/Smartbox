@@ -327,7 +327,7 @@ core.collectAndProcessUserInfo = (access_token) => {
           }).then(function(response) {
             let lastListenedMusicItems = response.data.items
             
-            let lastListenedPlaylistIDs = [...new Set(lastListenedMusicItems.filter(item => item.context.type.includes("playlist")).map(item => item.context.uri.split(":").pop()))]
+            let lastListenedPlaylistIDs = [...new Set(lastListenedMusicItems.filter(item => item.context && item.context.type.includes("playlist")).map(item => item.context.uri.split(":").pop()))]
             
             let lastListenedPlaylists = []
             
@@ -348,7 +348,7 @@ core.collectAndProcessUserInfo = (access_token) => {
               let myLastListenedSmartboxPlaylistsIDs = myLastListenedSmartboxPlaylists.map(item => item.id)
 
               let lastListenedMusicItemsFiltered = lastListenedMusicItems.filter((listenedMusicItem) => {
-                if(listenedMusicItem.context.type.includes("playlist")) {
+                if(listenedMusicItem.context && listenedMusicItem.context.type.includes("playlist")) {
                   let playlistID = listenedMusicItem.context.uri.split(":").pop()
                   if(myLastListenedSmartboxPlaylistsIDs.includes(playlistID)) {
                     return false
