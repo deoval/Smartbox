@@ -55,33 +55,26 @@
 
           <div id="lista-permissoes">
             <h2>Permissões necessárias</h2>
-            
+
             <ul>
-              <li><i>user-top-read</i> :  Acessar seus artistas e músicas mais escutados.</li>
-              <li><i>user-read-recent-played</i> : Acessar o que você escutou recentemente.</li>
-              <li><i>user-library-read</i> : Acessar suas faixas, álbuns e programas salvos.</li>
-              <li><i>playlist-read-private</i> : Acessar suas playlists particulares.</li> 
-              <li><i>playlist-read-collaborative</i> :  Acessar suas playlists colaborativas.</li>
-              <li><i>playlist-modify-public</i> :  Acesso de gravação às listas de reprodução públicas. (Para gerar as playlists)</li>
-            </ul>
-            
-            <h2>Permissões opcionais</h2>
-            <ul>
+              <li><i>user-read-private</i> : Acessar os detalhes da inscrição do usuário (tipo de conta de usuário).</li>
               <li><i>user-read-email</i> : Obter seu endereço de e-mail.</li>
-              <li><i>user-read-birthdate</i> : Receber sua data de nascimento.</li> 
+              <li><i>user-read-recently-played</i> : Acessar o que você escutou recentemente.</li>
+              <li><i>user-library-read</i> : Acessar suas faixas, álbuns e programas salvos.</li>
+              <li><i>playlist-modify-public</i> :  Acesso às suas listas de reprodução públicas. (Para gerar as playlists)</li>
             </ul>
           </div>
           
           <br>
           
+          <!-- Agora pode-se mexer nas playlists
           <p>
           <b>Importante:</b> As permissões só permitem ler os dados, nenhuma informação poderá ser alterada ou removida. Segue o
            <a href="https://developer.spotify.com/documentation/general/guides/scopes/">link</a> do Spotify para mais informações.
           </p>
 
           <br>
-    
-          <input type="checkbox" name="permissaoAdicional" value="permiteAcesso"> Eu gostaria de fazer parte dos testes do projeto, permitindo assim acesso ao meu e-mail e data de nascimento cadastrados na minha conta do Spotify.<br>
+          -->
     
           <div class="acoes">
             <button onclick="location.href = '/login'">Join on <span id="spotify-logo"></span></button>
