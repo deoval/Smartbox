@@ -208,7 +208,7 @@ core.removeAllSmartboxUsers = (access_token) => {
 /*
  *
  */
-core.generatePlaylistFromDistribution = (access_token, distribuicao) => {
+core.generatePlaylist = (access_token, distribuicao) => {
   return new Promise((resolve, reject) => {
     let distribuicaoMap = new Map()
 

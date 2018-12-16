@@ -214,8 +214,8 @@ app.get('/removeAllSmartboxUsers', function(req, res){
     })
 });
 
-app.post('/generatePlaylistFromDistribution', function(req, res){
-  core.generatePlaylistFromDistribution(req.query.access_token, req.body)
+app.post('/generatePlaylist', function(req, res){
+  core.generatePlaylist(req.query.access_token, req.body)
     .then((result) => {
       res.json(result)
     })

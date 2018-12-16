@@ -432,7 +432,7 @@
 
           $.ajax({
             method: 'POST',
-            url: `/generatePlaylistFromDistribution?access_token=${access_token}`,
+            url: `/generatePlaylist?access_token=${access_token}`,
             data: distribuicao,
             success: function(response) {
               $('#loading').hide();
