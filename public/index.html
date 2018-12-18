@@ -154,7 +154,9 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel">Smartbox de <span id="smartboxUserName"></span> (ID: <strong id="smartboxUserID"></strong>) <small><i>Convide pessoas para participar entrando com seu ID</i></small> <input id="smartbox-open-button" type="checkbox" data-toggle="toggle" data-on="Ligado" data-off="Desligado" data-width="100" data-onstyle="success"></h4>
+            <h4 class="modal-title" id="myModalLabel" style="float: left;">Smartbox de <span id="smartboxUserName"></span> (ID: <strong id="smartboxUserID"></strong>) <input id="smartbox-open-button" type="checkbox" data-toggle="toggle" data-on="Aberto" data-off="Fechado" data-width="100" data-onstyle="success"><br><small><i>Convide pessoas para entrar na sua Smartbox escaneando o qr-code ou digitando o ID acima</i></small></h4>
+            <div id="qrcode" style="float: left; margin-left: 15px;"></div>
+            <div style="clear: both;"></div>
           </div>
           
           <div class="modal-body">
@@ -219,6 +221,7 @@
     <script src="bootstrap-toggle.min.js"></script>
     <script src="Chart.min.js"></script>
     <script src="socket.io.js"></script>
+    <script src="jquery.qrcode.min.js"></script>
     <script>
       var socket = io();
 
@@ -342,6 +345,8 @@
                     $("#accessPlaylist").attr("href", response.smartbox_playlist_url)
                     $("#accessPlaylist").show()
                   }
+
+                  $('#qrcode').qrcode({width: 55,height: 55,text: response.id_spotify});
 
                   $('#loading').hide();
                   $('#login').hide();
