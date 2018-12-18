@@ -509,6 +509,8 @@
         }
       }
 
+      let graficoDistribuicaoGenerosSmartboxInstance = null
+
       var loadMySmartboxUsers = () => {
         $('#loading').show();
 
@@ -547,8 +549,12 @@
               document.querySelector("#genresNotesListSmartbox").innerHTML += `<dt>${genre}</dt><dd class="text-overflow" style="width:initial">${note}</dd>`
             }
 
+            if(graficoDistribuicaoGenerosSmartboxInstance) {
+              graficoDistribuicaoGenerosSmartboxInstance.destroy()
+            }
+
             var ctx = document.getElementById("graficoDistribuicaoGenerosSmartbox").getContext('2d');
-            new Chart(ctx, {
+            graficoDistribuicaoGenerosSmartboxInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: [...genresNotes.keys()],
