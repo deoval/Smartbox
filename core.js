@@ -208,7 +208,7 @@ core.removeAllSmartboxUsers = (access_token) => {
 /*
  *
  */
-core.generatePlaylist = (access_token, distribuicao) => {
+core.generatePlaylist = (access_token, distribuicao, maxMusicas) => {
   return new Promise((resolve, reject) => {
     let distribuicaoMap = new Map()
 
@@ -220,25 +220,35 @@ core.generatePlaylist = (access_token, distribuicao) => {
     let musicRecomendationPromisesByGenres = []
     let musicRecomendationListsByGenre = {}
 
+    let musicsRemainingToGet = maxMusicas
+
     let ordenedGenres = [...distribuicaoMap.keys()]
     ordenedGenres.forEach((genre) => {
-      let limit = distribuicaoMap.get(genre)
+      let limit = Math.round(maxMusicas * distribuicaoMap.get(genre) / 100)
       let seed_genres = genre
       let min_popularity = 50
 
-      let query = `limit=${limit}&seed_genres=${seed_genres}&min_popularity=${min_popularity}`
-      
-      musicRecomendationPromisesByGenres.push(
-        axios.get("https://api.spotify.com/v1/recommendations?" + query, {
-          headers: { 'Authorization': 'Bearer ' + access_token }
-        })
-        .then((response) => {
-          musicRecomendationListsByGenre[seed_genres] = response.data.tracks
-        })
-        .catch((err) => {
-          reject(err)
-        })
-      )
+      if(limit == 0 && musicsRemainingToGet > 0) {
+        limit = 1
+      }
+
+      if(limit > 0) {
+        musicsRemainingToGet -= limit
+
+        let query = `limit=${limit}&seed_genres=${seed_genres}&min_popularity=${min_popularity}`
+        
+        musicRecomendationPromisesByGenres.push(
+          axios.get("https://api.spotify.com/v1/recommendations?" + query, {
+            headers: { 'Authorization': 'Bearer ' + access_token }
+          })
+          .then((response) => {
+            musicRecomendationListsByGenre[seed_genres] = response.data.tracks
+          })
+          .catch((err) => {
+            reject(err)
+          })
+        )
+      }
     })
 
     Promise.all(musicRecomendationPromisesByGenres).then(() => {

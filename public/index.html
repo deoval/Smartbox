@@ -428,25 +428,29 @@
         let distribuicao = JSON.parse($("#generatePlaylistButton").attr("data-distribuicao"))
 
         if(confirm("Deseja gerar uma nova playlist?")) {
-          $('#loading').show();
+          let limit = prompt("Diga até quantas músicas deseja ter na playlist (no máximo 100)")
 
-          $.ajax({
-            method: 'POST',
-            url: `/generatePlaylist?access_token=${access_token}`,
-            data: distribuicao,
-            success: function(response) {
-              $('#loading').hide();
-              $("#accessPlaylist").attr("href", response.playlist_url)
-              $("#accessPlaylist").show()
-              alert("Playlist gerada com sucesso, e adicionada à sua conta. Acesse no botão abaixo.")
-            },
-            error: function(xhr,status,error) {
-              if(xhr.status == 401) {
-                alert("Sessão expirada. Pressione OK para relogar.")
-                location.href = '/login';
+          if(limit != null) {
+            $('#loading').show();
+
+            $.ajax({
+              method: 'POST',
+              url: `/generatePlaylist?access_token=${access_token}&limit=${limit}`,
+              data: distribuicao,
+              success: function(response) {
+                $('#loading').hide();
+                $("#accessPlaylist").attr("href", response.playlist_url)
+                $("#accessPlaylist").show()
+                alert("Playlist gerada com sucesso, e adicionada à sua conta. Acesse no botão abaixo.")
+              },
+              error: function(xhr,status,error) {
+                if(xhr.status == 401) {
+                  alert("Sessão expirada. Pressione OK para relogar.")
+                  location.href = '/login';
+                }
               }
-            }
-          })
+            })
+          }
         }
       }
 

@@ -215,7 +215,12 @@ app.get('/removeAllSmartboxUsers', function(req, res){
 });
 
 app.post('/generatePlaylist', function(req, res){
-  core.generatePlaylist(req.query.access_token, req.body)
+  let limit = 100
+  if(Number(req.query.limit) && Number(req.query.limit) > 0 && Number(req.query.limit) < 100) {
+    limit = Number(req.query.limit)
+  }
+
+  core.generatePlaylist(req.query.access_token, req.body, limit)
     .then((result) => {
       res.json(result)
     })
