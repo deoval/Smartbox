@@ -12,6 +12,7 @@ var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var axios = require('axios');
 var cookieParser = require('cookie-parser');
+var socket_io = require('socket.io');
 var core = require('./core');
 
 var client_id = '1ff894dcd5b64c98b024d6125224bdc6'; // Your client id
@@ -37,14 +38,17 @@ var generateRandomString = function(length) {
 var stateKey = 'spotify_auth_state';
 
 var app = express();
+var http = require('http').Server(app);
+var io = socket_io(http)
+
+var port = process.env.PORT || 8000;
+http.listen(port, function(){
+  console.log("Running on port: " + port)
+});
 
 app.use(express.static(__dirname + '/public'))
    .use(cookieParser())
    .use(bodyParser.urlencoded({extended: false}))
-
-var port = process.env.PORT || 8000;
-console.log("Running on port: " + port)
-app.listen(port);
 
 // Routes
 
@@ -197,7 +201,10 @@ app.get('/setSmartboxOpenStatus', function(req, res){
 app.get('/enterInSomeoneSmartbox', function(req, res){
   core.enterInSomeoneSmartbox(req.query.access_token, req.query.userID)
     .then((result) => {
-      res.json(result)
+      if(result.sucesso) {
+        io.emit('someoneEnteredInSmartbox', { usuario_id: req.query.userID });
+      }
+      res.json(result.msg)
     })
     .catch((err) => {
       res.status(err.response.status).json(err.response.data.error);

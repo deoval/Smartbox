@@ -218,7 +218,18 @@
     <script src="bootstrap.min.js"></script>
     <script src="bootstrap-toggle.min.js"></script>
     <script src="Chart.min.js"></script>
+    <script src="socket.io.js"></script>
     <script>
+      var socket = io();
+
+      socket.on('someoneEnteredInSmartbox', function(msg){
+        console.log(msg)
+        if(msg.usuario_id == $("#smartboxUserID").html()) {
+          console.log("atualizou")
+          loadMySmartboxUsers()
+        }
+      });
+
       /**
        * Obtains parameters from the hash of the URL
        * @return Object
