@@ -135,7 +135,7 @@
 
         <div class="acoes">
           <button data-toggle="modal" data-target="#smartboxModal">Abrir minha Smartbox</span></button>
-          <button data-toggle="modal" onclick="enterInSomeoneSmartbox()">Entrar em uma Smartbox</span></button>
+          <button data-toggle="modal" data-target="#enterInSmartboxModal">Entrar em uma Smartbox</span></button>
         </div>
 
         <h2 class="text-center">Lista de gêneros mais escutados e seus percentuais</h2>
@@ -186,6 +186,34 @@
       </div>
     </div>
 
+    <!-- Entrar em uma Smartbox Modal -->
+    <div class="modal fade" id="enterInSmartboxModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Entrar em uma Smartbox</h4>
+          </div>
+          
+          <div class="modal-body" style="text-align: center;">
+            <strong>Acesse escaneando o qr-code disponível na tela do usuário que você deseja entrar na Smartbox</strong>
+            <br>
+            <video muted autoplay playsinline id="smartboxQrCodeScanner"></video>
+
+            <hr>
+
+            <label>
+              Acesse digitando o ID do usuário que você deseja entrar na Smartbox
+              <br>
+              <input type="text" name="targetUserID" id="targetUserID">
+            </label>
+            <br>
+            <button onclick="enterInSomeoneSmartbox($('#targetUserID').val())">Entrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script id="user-profile-template" type="text/x-handlebars-template">
       <button onclick="location.href = '/'" style="float: right;">Sair</button>
       <h1>Logado como {{nome}}</h1>
@@ -222,6 +250,7 @@
     <script src="Chart.min.js"></script>
     <script src="socket.io.js"></script>
     <script src="jquery.qrcode.min.js"></script>
+    <script src="qr-scanner.min.js"></script>
     <script>
       var socket = io();
 
@@ -385,6 +414,17 @@
           loadMySmartboxUsers()
         })
 
+        let videoElement = document.querySelector("#smartboxQrCodeScanner")
+        let scanner = new QrScanner(videoElement, result => enterInSomeoneSmartbox(result))
+
+        $('#enterInSmartboxModal').on('show.bs.modal', function (event) {
+          scanner.start()
+        })
+
+        $('#enterInSmartboxModal').on('hide.bs.modal', function (event) {
+          scanner.stop()
+        })
+
         $('#smartbox-open-button').change(function() {
           $.ajax({
             url: `/setSmartboxOpenStatus?status=${$(this).prop('checked')}&access_token=${access_token}`,
@@ -398,10 +438,9 @@
         })
       })();
 
-      var enterInSomeoneSmartbox = () => {
-        let userID = prompt('Entre com o ID do usuário que você deseja entrar na Smartbox:')
-
+      var enterInSomeoneSmartbox = (userID) => {
         if(userID) {
+          $('#enterInSmartboxModal').modal('hide')
           $('#loading').show();
 
           $.ajax({
