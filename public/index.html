@@ -522,7 +522,12 @@
 
             usuariosSmartbox.forEach((usuarioSmartbox) => {
               // Monta a lista de usuários na tela
-              let nomeUsuario = usuarioSmartbox.usuario.nome.split(" ")[0]
+              let nomeUsuario = usuarioSmartbox.usuario.nome
+              if(nomeUsuario) {
+                nomeUsuario = nomeUsuario.split(" ")[0]
+              } else {
+                nomeUsuario = "Sem nome"
+              }
               let imagemUsuario = usuarioSmartbox.usuario.url_imagem ? usuarioSmartbox.usuario.url_imagem : 'assets/user.png'
               document.querySelector("#usersListSmartbox").innerHTML += `<li><img src="${imagemUsuario}" alt="" /> ${nomeUsuario} (@${usuarioSmartbox.usuario.id_spotify})</li>`
 
